@@ -1,11 +1,11 @@
 from sqlalchemy import Column, Float, String
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship
 
 from database.base import Base
 
 
-class Gene(Base):
-    __tablename__ = 'gene'
+class Meancov(Base):
+    __tablename__ = 'meancov'
     gene_id = Column(String, primary_key=True)
     mean_cov = Column(Float)
     gene = relationship()

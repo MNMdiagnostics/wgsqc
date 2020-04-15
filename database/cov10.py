@@ -4,8 +4,8 @@ from sqlalchemy.orm import relationship, backref
 from database.base import Base
 
 
-class Gene(Base):
-    __tablename__ = 'gene'
+class Cov10(Base):
+    __tablename__ = 'cov10'
     gene_id = Column(String, primary_key=True)
     cov_10 = Column(Float)
     gene = relationship()
