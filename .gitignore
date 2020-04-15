@@ -1,0 +1,4 @@
+*.tgz
+*.pyc
+wgsqc/
+.idea
