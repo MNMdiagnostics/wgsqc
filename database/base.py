@@ -1,6 +1,5 @@
 #!/bin/python3
 
-# transcript - gene: one-to-one
 # gene - meancov: one-to-many
 # gene - cov10: one-to-many
 # gene - cov20: one-to-many
