@@ -1,16 +1,19 @@
 #!/bin/python3
 
-from sqlalchemy import create_engine, Column, String, Float
+from sqlalchemy import create_engine, Column, String, Float, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
+engine = create_engine(r'postgresql+psycopg2://test_user:test@localhost:5432/test_name')
+Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
 
 class Record(Base):
     __tablename__ = 'record'
 
-    transcript_id = Column(String, primary_key=True)
+    record_number = Column(Integer, primary_key=True)
+    transcript_id = Column(String)
     sample_id = Column(String)
     gene_id = Column(String)
     mean_cov = Column(Float)
@@ -18,20 +21,12 @@ class Record(Base):
     cov_20 = Column(Float)
     cov_30 = Column(Float)
 
-
-engine = create_engine("postgresql:///records.db", echo=True)
-Base.metadata.create_all(bind=engine)
-Session = sessionmaker(bind=engine)
-
-session = Session()
-record = Record()
-
-record.transcript_id = "NR_046018.2"
-record.sample_id = "MNM00001"
-record.gene_id = "DDX11L1"
-record.mean_cov = 53.27
-record.cov_10 = 96.85
-record.cov_20 = 92.62
-record.cov_30 = 86.26
-
-session.close()
+    def __init__(self, record_number, transcript_id, sample_id, gene_id, mean_cov, cov_10, cov_20, cov_30):
+        self.record_number = record_number
+        self.transcript_id = transcript_id
+        self.sample_id = sample_id
+        self.gene_id = gene_id
+        self.mean_cov = mean_cov
+        self.cov_10 = cov_10
+        self.cov_20 = cov_20
+        self.cov_30 = cov_30
