@@ -2,8 +2,6 @@ from base import Session, Record
 
 session = Session()
 
-tmp = session.query(Record).all()
-
-print(tmp)
+dropdown_options = []
 
 session.close()
