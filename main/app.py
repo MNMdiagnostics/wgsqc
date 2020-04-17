@@ -9,6 +9,8 @@ from dash.dependencies import Input, Output
 sys.path.append("..")
 from database.base import Record
 from database.queries import get_transcripts_by_gene
+import time
+
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
 external_stylesheets = [dbc.themes.CYBORG]
@@ -72,4 +74,4 @@ def set_display_children(selected_gene, selected_transcript):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server()
