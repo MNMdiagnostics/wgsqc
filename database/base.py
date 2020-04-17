@@ -1,6 +1,6 @@
 #!/bin/python3
 
-from sqlalchemy import create_engine, Column, String, Float, Integer
+from sqlalchemy import create_engine, Column, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -10,9 +10,20 @@ Base = declarative_base()
 
 
 class Record(Base):
+    """
+    Database table
+
+    transcript_id: Transcript symbol.
+    sample_id: Name of a file data come from.
+    gene_id: Gene symbol encoding transcript in transcript_id.
+    mean_cov: Mean coverage value for given transcript of a gene.
+    cov_10: Percent of a transcript covered at least 10 X.
+    cov_20: Percent of a transcript covered at least 20 X.
+    cov_33: Percent of a transcript covered at least 30 X.
+    transcript_sample: Unique identifier of a single record <sample_id>_<transcript_id> (eg. MNM00001_NR_046018.2)
+    """
     __tablename__ = 'record'
 
-    record_number = Column(Integer, primary_key=True)
     transcript_id = Column(String)
     sample_id = Column(String)
     gene_id = Column(String)
@@ -20,9 +31,9 @@ class Record(Base):
     cov_10 = Column(Float)
     cov_20 = Column(Float)
     cov_30 = Column(Float)
+    transcript_sample = Column(String, primary_key=True)
 
-    def __init__(self, record_number, transcript_id, sample_id, gene_id, mean_cov, cov_10, cov_20, cov_30):
-        self.record_number = record_number
+    def __init__(self, transcript_id, sample_id, gene_id, mean_cov, cov_10, cov_20, cov_30, transcript_sample):
         self.transcript_id = transcript_id
         self.sample_id = sample_id
         self.gene_id = gene_id
@@ -30,3 +41,4 @@ class Record(Base):
         self.cov_10 = cov_10
         self.cov_20 = cov_20
         self.cov_30 = cov_30
+        self.transcript_sample = transcript_sample

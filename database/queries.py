@@ -4,7 +4,6 @@ session = Session()
 
 tmp = session.query(Record).all()
 
-for t in tmp:
-    print(t.transcript_id)
+print(tmp)
 
 session.close()
