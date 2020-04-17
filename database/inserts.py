@@ -34,4 +34,6 @@ if __name__ == "__main__":
     # READ FROM FILES
     if len(sys.argv) == 2:
         rootdir = sys.argv[1]
-        add_to_database_from_files(rootdir)
+    elif len(sys.argv) == 1:
+        rootdir = "~/"
+    add_to_database_from_files(rootdir)
