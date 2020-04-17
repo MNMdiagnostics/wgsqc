@@ -10,12 +10,15 @@ sys.path.append("..")
 from database.base import Record
 from database.queries import get_transcripts_by_gene
 
-
+# --------------------------- STYLESHEETS AND APP SETUP ---------------------------
 external_stylesheets = [dbc.themes.CYBORG]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+# --------------------------- DATA LOAD ---------------------------
 dropdown_options = get_transcripts_by_gene(Record)
 
+
+# --------------------------- DROPDOWN MENUS SETTINGS ---------------------------
 genes_dropdown = dbc.Col(
                     dcc.Dropdown(
                         id='genes-dropdown',
@@ -27,6 +30,7 @@ transcripts_dropdown = dbc.Col(
             dcc.Dropdown(id='transcripts-dropdown')
         )
 
+# --------------------------- NAVBAR SETTINGS ---------------------------
 name = dbc.Badge("WGSqc", color="secondary",)
 dashboard = dbc.Navbar(
     [
@@ -39,10 +43,10 @@ dashboard = dbc.Navbar(
     color="#1a1a1a",
 )
 
-# LAYOUT
+# --------------------------- LAYOUT SETTINGS ---------------------------
 app.layout = html.Div([dashboard])
 
-
+# --------------------------- DROPDOWNS CALLBACKS ---------------------------
 @app.callback(
     Output('transcripts-dropdown', 'options'),
     [Input('genes-dropdown', 'value')])
@@ -62,7 +66,7 @@ def set_gene_value(available_options):
     [Input('genes-dropdown', 'value'),
      Input('transcripts-dropdown', 'value')])
 def set_display_children(selected_gene, selected_transcript):
-    return u'{}{}'.format(
+    return u'{} {}'.format(
         selected_gene, selected_transcript,
     )
 
