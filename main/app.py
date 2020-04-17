@@ -1,21 +1,20 @@
 #!/bin/python3
 
+import sys
 import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
+sys.path.append("..")
+from database.base import Record
+from database.queries import get_transcripts_by_gene
+
 
 external_stylesheets = [dbc.themes.CYBORG]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-dropdown_options = {
-    "LOC100996442": ["XR_001737583.2", "XR_002958519.1", "XR_001737579.2"],
-    "OR4F16": ["NM_001005277.1", "XM_024449993.1", "XM_024449987.1"],
-    "LOC112268260": ["XR_002958507.1", "XR_002958506.1", "XR_002958503.1"],
-}
-
-name = dbc.Badge("WGSqc", color="secondary",)
+dropdown_options = get_transcripts_by_gene(Record)
 
 genes_dropdown = dbc.Col(
                     dcc.Dropdown(
@@ -28,6 +27,7 @@ transcripts_dropdown = dbc.Col(
             dcc.Dropdown(id='transcripts-dropdown')
         )
 
+name = dbc.Badge("WGSqc", color="secondary",)
 dashboard = dbc.Navbar(
     [
         dbc.Col(dbc.NavbarBrand(html.H3(name)), sm=3, md=2),
