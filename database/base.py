@@ -3,9 +3,18 @@
 from sqlalchemy import create_engine, Column, String, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+import os
+
+
+user = os.environ['POSTGRES_USER']
+password = os.environ['POSTGRES_PASSWORD']
+host = os.environ['POSTGRES_HOST']
+port = os.environ['POSTGRES_PORT']
+database = os.environ['POSTGRES_DB']
+
 
 # Connection with postgres database in Docker container
-engine = create_engine(r'postgresql+psycopg2://test_user:test@localhost:5432/test_name')
+engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}')
 Session = sessionmaker(bind=engine)
 Base = declarative_base()
 
