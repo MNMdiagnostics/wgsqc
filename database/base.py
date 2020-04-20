@@ -1,6 +1,6 @@
 #!/bin/python3
 
-from sqlalchemy import create_engine, Column, String, Float
+from sqlalchemy import create_engine, Column, String, Float, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
@@ -43,6 +43,8 @@ class Record(Base):
     cov_30 = Column(Float)
     transcript_sample = Column(String, primary_key=True)
 
+    Index('ix_record_transcript_gene', 'transcript_id', 'gene_id')
+
     def __init__(self, transcript_id, sample_id, gene_id, mean_cov, cov_10, cov_20, cov_30, transcript_sample):
         self.transcript_id = transcript_id
         self.sample_id = sample_id
@@ -52,3 +54,4 @@ class Record(Base):
         self.cov_20 = cov_20
         self.cov_30 = cov_30
         self.transcript_sample = transcript_sample
+
