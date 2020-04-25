@@ -17,7 +17,7 @@ external_stylesheets = [dbc.themes.CYBORG]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 # --------------------------- DATA LOAD ---------------------------
-dropdown_options = get_transcripts_by_gene(Record, type="object")
+dropdown_options = get_transcripts_by_gene(Record, type="object", column="transcript_id")
 
 
 # --------------------------- DROPDOWN MENUS SETTINGS ---------------------------
