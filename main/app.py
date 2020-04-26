@@ -56,7 +56,24 @@ dashboard = dbc.Navbar(
 
 
 # --------------------------- DEFAULT PLOT ---------------------------
-default_plot = dcc.Graph(id="default-plot")
+default_plot = dcc.Graph(
+        figure={
+            'data': [
+                {'x': [],
+                 'y': [],
+                 }
+            ],
+            'layout':{
+                "height": 700,
+                'plot_bgcolor': '#010608',
+                'paper_bgcolor': '#010608',
+                'font': {
+                    'color': '#7FDBFF'
+                }
+            }
+        },
+    id="default-plot"
+)
 
 # --------------------------- LAYOUT SETTINGS ---------------------------
 app.layout = html.Div([dashboard, default_plot])
@@ -144,6 +161,7 @@ def set_display_children(selected_gene, selected_transcript, view_type):
         fig = go.Figure(data=data, layout=layout)
         return fig
     elif view_type == "Mean coverage - coverage X10":
+        # --------------------------- SCATTER PLOT ---------------------------
         mean_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov")
         x10_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10")
         scat = go.Scatter(
@@ -152,15 +170,21 @@ def set_display_children(selected_gene, selected_transcript, view_type):
             mode = "markers",
             name = "Mean coverage against coverage X10",
             marker=dict(
-                color='#7fdbff'),
-            line=dict(
                 color='#7fdbff',
-                width=60))
+                size=12),
+            line=dict(
+                color='#7fdbff',))
         data = [scat]
         layout = go.Layout(title="Mean coverage against coverage X10",
                            height=800,
                            paper_bgcolor='#010608',
                            plot_bgcolor='#010608',
+                           xaxis={
+                               "title": "Coverage X10"
+                           },
+                           yaxis={
+                               "title": "Mean coverage"
+                           },
                            font={
                                "size": 18,
                                "color": '#7fdbff'
@@ -169,14 +193,26 @@ def set_display_children(selected_gene, selected_transcript, view_type):
                            )
         fig = go.Figure(data=data, layout=layout)
         return fig
-
+    else:
+        # --------------------------- NO PLOT SPECIFIED ---------------------------
+        scat = go.Scatter(
+            x=[],
+            y=[]
+        )
+        data = [scat]
+        layout = go.Layout(height=800,
+                           paper_bgcolor='#010608',
+                           plot_bgcolor='#010608'
+                           )
+        fig = go.Figure(data=data, layout=layout)
+        return fig
 
 
 if __name__ == "__main__":
     app.run_server(debug=True)
 
 
-# TODO: xlab and ylab description, dot size, net width
 # TODO: Style default loading empty plot.
 # TODO: Default first transcript in database. Now transcript is hardcoded.
+# TODO: Descriptions for giant callback.
 # TODO: Maybe dropdown colors?
