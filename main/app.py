@@ -176,11 +176,12 @@ def set_display_children(selected_gene, selected_transcript, view_type):
         # --------------------------- SCATTER PLOT ---------------------------
         mean_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov")
         x10_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10")
+
         scat = go.Scatter(
-            x = x10_cov_data,
-            y = mean_cov_data,
-            mode = "markers",
-            name = "Mean coverage against coverage X10",
+            x=x10_cov_data,
+            y=mean_cov_data,
+            mode="markers",
+            name="Mean coverage against coverage X10",
             marker=dict(
                 color='#7fdbff',
                 size=12),

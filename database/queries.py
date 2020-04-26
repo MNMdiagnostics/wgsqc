@@ -85,9 +85,10 @@ def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
 
     session.close()
 
-    sample_ids = [obj.sample_id for obj in values]
+    sample_id_list = [obj.sample_id for obj in values]
     statistics_values = [getattr(obj, stat) for obj in values]
+
     if sample_ids:
-        return statistics_values, sample_ids
+        return statistics_values, sample_id_list
     else:
         return statistics_values
