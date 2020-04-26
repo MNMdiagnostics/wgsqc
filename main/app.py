@@ -1,4 +1,5 @@
 #!/bin/python3
+import pprint
 import sys
 import dash
 import dash_html_components as html
@@ -9,6 +10,8 @@ from dash.dependencies import Input, Output
 sys.path.append("..")
 from database.base import Record
 from database.queries import get_transcripts_by_gene, get_stats_for_plot
+from scipy import stats
+import numpy as np
 
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
@@ -37,7 +40,7 @@ plots_dropdown = dbc.Col(
             {"label": "Mean coverage boxplots", "value": "Mean coverage boxplots"},
             {"label": "Mean coverage - coverage X10", "value": "Mean coverage - coverage X10"},
         ],
-        value='Mean coverage - coverage X10'
+        value='Mean coverage boxplots'
     )
 )
 
@@ -101,50 +104,59 @@ def set_gene_value(available_options):
 def set_display_children(selected_gene, selected_transcript, view_type):
     if view_type == "Mean coverage boxplots":
         # --------------------------- BOXPLOTS ---------------------------
-        mean_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov")
-        x10_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10")
-        x20_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_20")
-        x30_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_30")
+        mean_cov_data, mean_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov", sample_ids=True)
+        x10_cov_data, x10_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10", sample_ids=True)
+        x20_cov_data, x20_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_20", sample_ids=True)
+        x30_cov_data, x30_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_30", sample_ids=True)
 
         mean_cov_boxplot = go.Box(
             y=mean_cov_data,
             name="Mean coverage",
+            text=mean_cov_sample_ids,
             jitter=0.3,
             boxpoints='all',
             marker=dict(
-                color='#7fdbff'),
+                color='#7fdbff',
+                ),
             line=dict(
-                color='#7fdbff'))
+                color='#7fdbff'),
+            showlegend=False)
 
         x10 = go.Box(
             y=x10_cov_data,
             name="Coverage X10",
+            text=x10_cov_sample_ids,
             jitter=0.3,
             boxpoints='all',
             marker=dict(
                 color='#7fdbff'),
             line=dict(
-                color='#7fdbff'))
+                color='#7fdbff'),
+            showlegend=False)
 
         x20 = go.Box(
             y=x20_cov_data,
             name="Coverage X20",
+            text=x20_cov_sample_ids,
             jitter=0.3,
             boxpoints='all',
             marker=dict(
                 color='#7fdbff'),
             line=dict(
-                color='#7fdbff'))
+                color='#7fdbff'),
+            showlegend=False)
 
         x30 = go.Box(
             y=x30_cov_data,
             name="Coverage X30",
+            text=x30_cov_sample_ids,
             jitter=0.3,
             boxpoints='all',
             marker=dict(
                 color='#7fdbff'),
             line=dict(
-                color='#7fdbff'))
+                color='#7fdbff'),
+            showlegend=False)
 
         data = [mean_cov_boxplot, x10, x20, x30]
 
@@ -189,7 +201,6 @@ def set_display_children(selected_gene, selected_transcript, view_type):
                                "size": 18,
                                "color": '#7fdbff'
                            }
-
                            )
         fig = go.Figure(data=data, layout=layout)
         return fig
@@ -211,8 +222,5 @@ def set_display_children(selected_gene, selected_transcript, view_type):
 if __name__ == "__main__":
     app.run_server(debug=True)
 
-
-# TODO: Style default loading empty plot.
 # TODO: Default first transcript in database. Now transcript is hardcoded.
-# TODO: Descriptions for giant callback.
 # TODO: Maybe dropdown colors?

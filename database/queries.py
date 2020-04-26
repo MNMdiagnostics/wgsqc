@@ -3,7 +3,7 @@ sys.path.append("..")
 from database.base import Session
 from collections import defaultdict
 import time
-import pprint
+
 
 
 def get_all_transcripts_names(table_name: "Class", type: "String"):
@@ -67,20 +67,27 @@ def get_all_file_names(table_name: "Class", type: "String"):
         return [getattr(obj, type) for obj in files]
 
 
-def get_stats_for_plot(table_name, transcript, gene, stat):
+def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
     """
     :param table_name: Name of a table to get stats (eg. Record).
     :param transcript: Transcript symbol to filter.
     :param gene: Gene symbol to filter.
     :param stat: Statistics to return (eg. mean_cov).
+    :param samle_ids: True if function should produce sample IDs.
     :return: List of wanted statistic values in all samples for given transcript and gene.
     """
     session = Session()
 
-    values = session.query(getattr(table_name, stat))\
+    values = session.query(table_name)\
              .filter(table_name.transcript_id == transcript)\
              .filter(table_name.gene_id == gene)\
              .all()
 
     session.close()
-    return [x[0] for x in values]
+
+    sample_ids = [obj.sample_id for obj in values]
+    statistics_values = [getattr(obj, stat) for obj in values]
+    if sample_ids:
+        return statistics_values, sample_ids
+    else:
+        return statistics_values
