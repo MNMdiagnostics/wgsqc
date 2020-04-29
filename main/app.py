@@ -1,5 +1,5 @@
 #!/bin/python3
-import pprint
+
 import sys
 import dash
 import dash_html_components as html
@@ -10,8 +10,6 @@ from dash.dependencies import Input, Output
 sys.path.append("..")
 from database.base import Record
 from database.queries import get_transcripts_by_gene, get_stats_for_plot
-from scipy import stats
-import numpy as np
 
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
@@ -172,6 +170,7 @@ def set_display_children(selected_gene, selected_transcript, view_type):
                            )
         fig = go.Figure(data=data, layout=layout)
         return fig
+
     elif view_type == "Mean coverage - coverage X10":
         # --------------------------- SCATTER PLOT ---------------------------
         mean_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov")
