@@ -2,6 +2,8 @@ from base import Session, engine, Base, Record
 import pandas as pd
 import sys
 import os
+import time
+import statistics
 
 
 def add_to_database_from_files(root_directory):
@@ -13,21 +15,22 @@ def add_to_database_from_files(root_directory):
     """
     colnames = ("transcript_id", "gene_id", "mean_cov", "cov_10", "cov_20", "cov_30")
     Base.metadata.create_all(bind=engine)
+    total = time.perf_counter()
+    times = []
     for subdir, dirs, files in os.walk(root_directory):
         for file in files:
-            session = Session()
             print("CURRENT FILE:", file)
+            t = time.perf_counter()
             file_absolute_path = os.path.join(subdir, file)
-            sample_id = os.path.basename(subdir)
             table = pd.read_csv(file_absolute_path, sep="\t", header=None, names=colnames)
-            for id, row in table.iterrows():
-                if id % 50_000 == 0:
-                    print("ROW:", id)
-                transcript_sample = sample_id + "_" + row['transcript_id']
-                record = Record(row['transcript_id'], sample_id, row['gene_id'], row['mean_cov'], row['cov_10'], row['cov_20'], row['cov_30'], transcript_sample)
-                session.add(record)
-            session.commit()
-            print(f"FILE {file} ADDED TO DATABASE\n")
+            table['sample_id'] = os.path.basename(subdir)
+            table.to_sql('record', engine, if_exists='append', index=False)
+            print(f"FILE {file} ADDED TO DATABASE, EXECUTION TIME: {time.perf_counter() - t}")
+            times.append(time.perf_counter() - t)
+    print(f"\n\nTOTAL TIME: {time.perf_counter() - total}")
+    print(f"MAX TIME: {max(times)}")
+    print(f"MIN TIME: {min(times)}")
+    print(f"MEAN TIME: {statistics.mean(times)}")
 
 
 if __name__ == "__main__":
@@ -35,5 +38,6 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:
         rootdir = sys.argv[1]
     elif len(sys.argv) == 1:
+        print("Root directory set up as /home/username")
         rootdir = "~/"
     add_to_database_from_files(rootdir)

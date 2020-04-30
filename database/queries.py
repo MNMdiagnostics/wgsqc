@@ -5,6 +5,20 @@ from collections import defaultdict
 import time
 
 
+def get_first_row_for_default(table_name: "Class"):
+    """
+    :param table_name:  Name of a table to get first row.
+    :return: First row from table to use as default value.
+    """
+    session = Session()
+    val = session.query(table_name) \
+        .filter(table_name.id == 1) \
+        .all()
+    try:
+        return val[0].gene_id
+    except IndexError:  # If database is empty then val[0] returns IndexError
+        return "None"
+
 
 def get_all_transcripts_names(table_name: "Class", type: "String"):
     """
@@ -12,7 +26,6 @@ def get_all_transcripts_names(table_name: "Class", type: "String"):
     :param type: Output type. "object" for list of objects, "transcript_id" for list of transcripts ID's as strings.
     :return: List of all distinct record objects or attributes of this object.
     """
-
     session = Session()
 
     transcripts = session.query(table_name)\
@@ -32,19 +45,15 @@ def get_transcripts_by_gene(table_name: "Class", type: "String"):
     :param table_name: Name of table to create dictionary from.
     :return: Dictionary of genes (keys) and lists of transcripts that they encode (values).
     """
-    session = Session()
-
     print("Querying...")
-    start = time.time()
+    start = time.perf_counter()
     distincts = get_all_transcripts_names(table_name, type=type)
-    diff = time.time() - start
-    print(f"Query done, exec time {diff} seconds")
+    print(f"Query done, exec time {time.perf_counter() - start} seconds")
 
     dropdown_options = defaultdict(list)
     for obj in distincts:
         dropdown_options[obj.gene_id].append(obj.transcript_id)
 
-    session.close()
     return dropdown_options
 
 

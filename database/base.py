@@ -1,17 +1,15 @@
 #!/bin/python3
 
-from sqlalchemy import create_engine, Column, String, Float
+from sqlalchemy import create_engine, Column, String, Float, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
-
 
 user = os.environ['POSTGRES_USER']
 password = os.environ['POSTGRES_PASSWORD']
 host = os.environ['POSTGRES_HOST']
 port = os.environ['POSTGRES_PORT']
 database = os.environ['POSTGRES_DB']
-
 
 # Connection with postgres database in Docker container
 engine = create_engine(f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}')
@@ -34,6 +32,7 @@ class Record(Base):
     """
     __tablename__ = 'record'
 
+    id = Column(Integer, primary_key=True)
     transcript_id = Column(String, index=True)
     sample_id = Column(String, index=True)
     gene_id = Column(String)
@@ -41,7 +40,6 @@ class Record(Base):
     cov_10 = Column(Float)
     cov_20 = Column(Float)
     cov_30 = Column(Float)
-    transcript_sample = Column(String, primary_key=True)
 
     def __init__(self, transcript_id, sample_id, gene_id, mean_cov, cov_10, cov_20, cov_30, transcript_sample):
         self.transcript_id = transcript_id
