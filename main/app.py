@@ -113,6 +113,7 @@ else:
             x10_cov_data, x10_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10", sample_ids=True)
             x20_cov_data, x20_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_20", sample_ids=True)
             x30_cov_data, x30_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_30", sample_ids=True)
+            n_samples = len(mean_cov_sample_ids)
 
             mean_cov_boxplot = go.Box(
                 y=mean_cov_data,
@@ -165,7 +166,7 @@ else:
 
             data = [mean_cov_boxplot, x10, x20, x30]
 
-            layout = go.Layout(title = "Coverage boxplots",
+            layout = go.Layout(title = f"Coverage boxplots, number of samples: {n_samples}",
                                height=800,
                                paper_bgcolor='#010608',
                                plot_bgcolor='#010608',
@@ -182,6 +183,7 @@ else:
             # --------------------------- SCATTER PLOT ---------------------------
             mean_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov")
             x10_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10")
+            n_samples = len(x10_cov_data)
 
             scat = go.Scatter(
                 x=x10_cov_data,
@@ -192,9 +194,9 @@ else:
                     color='#7fdbff',
                     size=12),
                 line=dict(
-                    color='#7fdbff',))
+                    color='#7fdbff'))
             data = [scat]
-            layout = go.Layout(title="Mean coverage against coverage X10",
+            layout = go.Layout(title=f"Mean coverage against coverage X10, number of samples: {n_samples}",
                                height=800,
                                paper_bgcolor='#010608',
                                plot_bgcolor='#010608',
@@ -229,4 +231,6 @@ else:
     if __name__ == "__main__":
         app.run_server(debug=True)
 
-# TODO: Maybe dropdown colors?
+# TODO: Add dropdown/left-side menu to highlight wanted sample.
+# TODO: Try to edit style and informations on hoverlabel.
+# TODO: Maybe number of samples showed on navbar.
