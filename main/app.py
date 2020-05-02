@@ -5,13 +5,14 @@ import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
-import plotly.graph_objs as go
 from sqlalchemy.exc import ProgrammingError
 from dash.dependencies import Input, Output
 sys.path.append("..")
 from database.base import Record
 from database.queries import *
-
+from main.empty_plot import empty_plot
+from main.mean_cov_scatterplot import mean_cov_scatterplot
+from main.mean_cov_boxplots import mean_cov_boxplots
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
 external_stylesheets = [dbc.themes.CYBORG]
@@ -58,7 +59,6 @@ else:
         dark=True,
         color="#1a1a1a",
     )
-
 
     # --------------------------- DEFAULT PLOT ---------------------------
     default_plot = dcc.Graph(
@@ -107,125 +107,15 @@ else:
          Input('transcripts-dropdown', 'value'),
          Input('plots-dropdown', 'value')])
     def set_display_children(selected_gene, selected_transcript, view_type):
+
         if view_type == "Mean coverage boxplots":
-            # --------------------------- BOXPLOTS ---------------------------
-            mean_cov_data, mean_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov", sample_ids=True)
-            x10_cov_data, x10_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10", sample_ids=True)
-            x20_cov_data, x20_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_20", sample_ids=True)
-            x30_cov_data, x30_cov_sample_ids = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_30", sample_ids=True)
-            n_samples = len(mean_cov_sample_ids)
-
-            mean_cov_boxplot = go.Box(
-                y=mean_cov_data,
-                name="Mean coverage",
-                text=mean_cov_sample_ids,
-                jitter=0.3,
-                boxpoints='all',
-                marker=dict(
-                    color='#7fdbff',
-                    ),
-                line=dict(
-                    color='#7fdbff'),
-                showlegend=False)
-
-            x10 = go.Box(
-                y=x10_cov_data,
-                name="Coverage X10",
-                text=x10_cov_sample_ids,
-                jitter=0.3,
-                boxpoints='all',
-                marker=dict(
-                    color='#7fdbff'),
-                line=dict(
-                    color='#7fdbff'),
-                showlegend=False)
-
-            x20 = go.Box(
-                y=x20_cov_data,
-                name="Coverage X20",
-                text=x20_cov_sample_ids,
-                jitter=0.3,
-                boxpoints='all',
-                marker=dict(
-                    color='#7fdbff'),
-                line=dict(
-                    color='#7fdbff'),
-                showlegend=False)
-
-            x30 = go.Box(
-                y=x30_cov_data,
-                name="Coverage X30",
-                text=x30_cov_sample_ids,
-                jitter=0.3,
-                boxpoints='all',
-                marker=dict(
-                    color='#7fdbff'),
-                line=dict(
-                    color='#7fdbff'),
-                showlegend=False)
-
-            data = [mean_cov_boxplot, x10, x20, x30]
-
-            layout = go.Layout(title = f"Coverage boxplots, number of samples: {n_samples}",
-                               height=800,
-                               paper_bgcolor='#010608',
-                               plot_bgcolor='#010608',
-                               font = {
-                                   "size": 18,
-                                   "color": '#7fdbff'
-                               }
-
-                               )
-            fig = go.Figure(data=data, layout=layout)
-            return fig
+            return mean_cov_boxplots(selected_transcript, selected_gene)
 
         elif view_type == "Mean coverage - coverage X10":
-            # --------------------------- SCATTER PLOT ---------------------------
-            mean_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov")
-            x10_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10")
-            n_samples = len(x10_cov_data)
+            return mean_cov_scatterplot(selected_transcript, selected_gene)
 
-            scat = go.Scatter(
-                x=x10_cov_data,
-                y=mean_cov_data,
-                mode="markers",
-                name="Mean coverage against coverage X10",
-                marker=dict(
-                    color='#7fdbff',
-                    size=12),
-                line=dict(
-                    color='#7fdbff'))
-            data = [scat]
-            layout = go.Layout(title=f"Mean coverage against coverage X10, number of samples: {n_samples}",
-                               height=800,
-                               paper_bgcolor='#010608',
-                               plot_bgcolor='#010608',
-                               xaxis={
-                                   "title": "Coverage X10"
-                               },
-                               yaxis={
-                                   "title": "Mean coverage"
-                               },
-                               font={
-                                   "size": 18,
-                                   "color": '#7fdbff'
-                               }
-                               )
-            fig = go.Figure(data=data, layout=layout)
-            return fig
         else:
-            # --------------------------- NO PLOT SPECIFIED ---------------------------
-            scat = go.Scatter(
-                x=[],
-                y=[]
-            )
-            data = [scat]
-            layout = go.Layout(height=800,
-                               paper_bgcolor='#010608',
-                               plot_bgcolor='#010608'
-                               )
-            fig = go.Figure(data=data, layout=layout)
-            return fig
+            return empty_plot()
 
 
     if __name__ == "__main__":
