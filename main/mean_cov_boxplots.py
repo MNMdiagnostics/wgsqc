@@ -2,6 +2,9 @@ import plotly.graph_objects as go
 from database.queries import get_stats_for_plot
 from database.base import Record
 
+components_color = '#080808'
+font_color = '#7FDBFF'
+
 
 def mean_cov_boxplots(selected_transcript, selected_gene):
     # --------------------------- BOXPLOTS ---------------------------
@@ -22,10 +25,10 @@ def mean_cov_boxplots(selected_transcript, selected_gene):
         jitter=0.3,
         boxpoints='all',
         marker=dict(
-            color='#7fdbff',
+            color=font_color,
         ),
         line=dict(
-            color='#7fdbff'),
+            color=font_color),
         showlegend=False)
 
     x10 = go.Box(
@@ -35,9 +38,9 @@ def mean_cov_boxplots(selected_transcript, selected_gene):
         jitter=0.3,
         boxpoints='all',
         marker=dict(
-            color='#7fdbff'),
+            color=font_color),
         line=dict(
-            color='#7fdbff'),
+            color=font_color),
         showlegend=False)
 
     x20 = go.Box(
@@ -47,9 +50,9 @@ def mean_cov_boxplots(selected_transcript, selected_gene):
         jitter=0.3,
         boxpoints='all',
         marker=dict(
-            color='#7fdbff'),
+            color=font_color),
         line=dict(
-            color='#7fdbff'),
+            color=font_color),
         showlegend=False)
 
     x30 = go.Box(
@@ -59,20 +62,20 @@ def mean_cov_boxplots(selected_transcript, selected_gene):
         jitter=0.3,
         boxpoints='all',
         marker=dict(
-            color='#7fdbff'),
+            color=font_color),
         line=dict(
-            color='#7fdbff'),
+            color=font_color),
         showlegend=False)
 
     data = [mean_cov_boxplot, x10, x20, x30]
 
     layout = go.Layout(title=f"Coverage boxplots, number of samples: {n_samples}",
-                       height=800,
-                       paper_bgcolor='#010608',
-                       plot_bgcolor='#010608',
+                       height=750,
+                       paper_bgcolor=components_color,
+                       plot_bgcolor=components_color,
                        font={
                            "size": 18,
-                           "color": '#7fdbff'
+                           "color": font_color
                        })
     fig = go.Figure(data=data, layout=layout)
     return fig

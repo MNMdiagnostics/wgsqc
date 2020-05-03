@@ -6,7 +6,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from sqlalchemy.exc import ProgrammingError
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 sys.path.append("..")
 from database.base import Record
 from database.queries import *
@@ -15,8 +15,42 @@ from main.mean_cov_scatterplot import mean_cov_scatterplot
 from main.mean_cov_boxplots import mean_cov_boxplots
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
-external_stylesheets = [dbc.themes.CYBORG]
+FONT_AWESOME = "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+external_stylesheets = [dbc.themes.CYBORG, FONT_AWESOME]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
+border_color = "#1a1a1a"
+background_color = "#000000"
+font_color = '#7FDBFF'
+components_color = '#080808'
+
+
+navbar = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
+          'padding': '10px 10px 10px 10px',
+          'backgroundColor': components_color,
+          'border': f'2px {border_color} solid',
+          'border-radius': 10}
+
+graph = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
+         'padding': '10px 10px 10px 10px',
+         'backgroundColor': components_color,
+         'height': '800px',
+         'border': f'2px {border_color} solid',
+         'border-radius': 10}
+
+body_style = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
+              'backgroundColor': background_color,
+              'padding': '10px 10px 10px 10px'}
+
+sidebar_style = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
+                 'padding': '10px 10px 10px 10px',
+                 'border': f'2px {border_color} solid',
+                 'backgroundColor': components_color,
+                 'height': '800px',
+                 'width': '160px',
+                 'overflowY': 'scroll',
+                 'border-radius': 10}
+
 
 # --------------------------- DATA LOAD ---------------------------
 try:
@@ -24,7 +58,7 @@ try:
 except ProgrammingError:
     print("Database do not exists")
 else:
-    # --------------------------- DROPDOWN MENUS SETTINGS ---------------------------
+    # --------------------------- DROPDOWNS SETTINGS ---------------------------
     genes_dropdown = dbc.Col(
                         dcc.Dropdown(
                             id='genes-dropdown',
@@ -48,16 +82,16 @@ else:
     )
 
     # --------------------------- NAVBAR SETTINGS ---------------------------
-    name = dbc.Badge("WGSqc", color="secondary",)
-    dashboard = dbc.Navbar(
+    navbar = dbc.Navbar(
         [
-            dbc.Col(dbc.NavbarBrand(html.H3(name)), sm=3, md=2),
+            html.H3("WGSqc"),
             plots_dropdown,
             genes_dropdown,
             transcripts_dropdown,
         ],
         dark=True,
-        color="#1a1a1a",
+        color=background_color,
+        style=navbar
     )
 
     # --------------------------- DEFAULT PLOT ---------------------------
@@ -70,18 +104,37 @@ else:
                 ],
                 'layout':{
                     "height": 700,
-                    'plot_bgcolor': '#010608',
-                    'paper_bgcolor': '#010608',
+                    'plot_bgcolor': background_color,
+                    'paper_bgcolor': background_color,
                     'font': {
-                        'color': '#7FDBFF'
+                        'color': font_color
                     }
                 }
             },
-        id="default-plot"
+        id="default-plot",
+        style=graph
     )
 
+    # --------------------------- SIDEBAR SETTINGS ---------------------------
+    content = [html.Div(sample_id, id=f"{sample_id}-button") for sample_id in sorted(get_all_file_names(Record, "sample_id"))]
+    radio = dcc.RadioItems(
+        options=[{'label': k, 'value': k} for k in sorted(get_all_file_names(Record, "sample_id"))]
+    )
+    sidebar = dbc.Jumbotron(
+        radio,
+        fluid=False,
+        style=sidebar_style)
+
+    body = html.Div([
+        dbc.Row([
+            dbc.Col(html.Div(sidebar), width='25%'),
+            dbc.Col(html.Div(default_plot))])],
+        style=body_style)
+
     # --------------------------- LAYOUT SETTINGS ---------------------------
-    app.layout = html.Div([dashboard, default_plot])
+    app.layout = html.Div([navbar, body])
+
+    # -----------------------------------------------------------------------
 
     # --------------------------- DROPDOWNS CALLBACKS ---------------------------
     @app.callback(
@@ -89,7 +142,6 @@ else:
         [Input('genes-dropdown', 'value')])
     def set_transcript_options(selected_gene):
         return [{'label': i, 'value': i} for i in dropdown_options[selected_gene]]
-
 
     @app.callback(
         Output('transcripts-dropdown', 'value'),
@@ -99,7 +151,6 @@ else:
             return available_options[0]['value']
         except IndexError:
             return []
-
 
     @app.callback(
         Output('default-plot', 'figure'),

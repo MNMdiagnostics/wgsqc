@@ -48,7 +48,7 @@ def get_transcripts_by_gene(table_name: "Class", type: "String"):
     print("Querying...")
     start = time.perf_counter()
     distincts = get_all_transcripts_names(table_name, type=type)
-    print(f"Query done, exec time {time.perf_counter() - start} seconds")
+    print(f"Query done, exec time {round(time.perf_counter() - start)} seconds")
 
     dropdown_options = defaultdict(list)
     for obj in distincts:
