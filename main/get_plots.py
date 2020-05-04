@@ -21,6 +21,8 @@ def get_boxplot(selected_transcript, selected_gene, statistics):
     # GET PANDAS DATAFRAME OF CHOSEN STATISTICS VALUES FOR MATCHING GENE AND TRANSCRIPT
     stat_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, statistics,
                                                             sample_ids=True)
+    n_samples = len(stat_dataframe["value"])
+
     boxplot = go.Box(
         y=stat_dataframe['value'],
         name=f"{statistics}",
@@ -33,7 +35,7 @@ def get_boxplot(selected_transcript, selected_gene, statistics):
 
     data = [boxplot]
 
-    layout = go.Layout(title=f"{statistics} boxplot",
+    layout = go.Layout(title=f"{statistics} boxplot, n_samples: {n_samples}",
                        height=750,
                        paper_bgcolor=components_color,
                        plot_bgcolor=components_color,
@@ -67,6 +69,9 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample, statist
         x=[1 for x in range(len(stat_dataframe['value']))],
         name=f"{statistics}",
         mode='markers',
+        hovertemplate=
+        '<i>Sample: </i>%{text}' +
+        '<br><i>Value: </i>%{y}<br>',
         text=stat_dataframe['id'],
         marker=dict(
             color=np.where(stat_dataframe['value'] == statistics_value, 'red', font_color),
@@ -78,6 +83,11 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample, statist
 
     layout = go.Layout(title=f"{statistics} scatterplot",
                        height=750,
+                       hoverlabel=dict(
+                           bgcolor='black',
+                           font_size=16,
+                           bordercolor=font_color,
+                       ),
                        paper_bgcolor=components_color,
                        plot_bgcolor=components_color,
                        xaxis={'title': '',
@@ -109,6 +119,10 @@ def coverage_x10_scatterplot(selected_transcript, selected_gene, selected_sample
         x=x10_cov_data['value'],
         y=mean_cov_data['value'],
         mode="markers",
+        hovertemplate=
+        '<i>Sample: </i>%{text}' +
+        '<br><i>Mean coverage: </i>%{y}' +
+        '<br><i>X10 coverage: </i>%{x}<br>',
         text=mean_cov_data["id"],
         name="Mean coverage - coverage X10",
         marker=dict(
@@ -121,6 +135,11 @@ def coverage_x10_scatterplot(selected_transcript, selected_gene, selected_sample
                        height=750,
                        paper_bgcolor=components_color,
                        plot_bgcolor=components_color,
+                       hoverlabel=dict(
+                           bgcolor='black',
+                           font_size=16,
+                           bordercolor=font_color,
+                       ),
                        xaxis={"title": "Coverage X10"},
                        yaxis={"title": "Mean coverage"},
                        font={
