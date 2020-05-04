@@ -1,5 +1,5 @@
 import plotly.graph_objects as go
-from database.queries import get_stats_for_plot, get_stats_for_one_sample
+from database.queries import get_stats_for_plot
 from database.base import Record
 import numpy as np
 
@@ -61,12 +61,9 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample, statist
     # GET PANDAS DATAFRAME OF CHOSEN STATISTICS VALUES FOR MATCHING GENE AND TRANSCRIPT
     stat_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, statistics,
                                                             sample_ids=True)
-    # GET VALUE OF SAMPLE TO HIGHLIGHT
-    statistics_value = get_stats_for_one_sample(Record, selected_sample, selected_transcript, selected_gene, statistics)
-
     scatter = go.Scatter(
         y=stat_dataframe['value'],
-        x=[1 for x in range(len(stat_dataframe['value']))],
+        x=[x for x in range(len(stat_dataframe['value']))],
         name=f"{statistics}",
         mode='markers',
         hovertemplate=
@@ -74,8 +71,8 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample, statist
         '<br><i>Value: </i>%{y}<br>',
         text=stat_dataframe['id'],
         marker=dict(
-            color=np.where(stat_dataframe['value'] == statistics_value, 'red', font_color),
-            size=np.where(stat_dataframe['value'] == statistics_value, 18, 12)
+            color=np.where(stat_dataframe['id'] == selected_sample, 'red', font_color),
+            size=np.where(stat_dataframe['id'] == selected_sample, 18, 12)
         ),
         showlegend=False)
 
@@ -113,7 +110,6 @@ def coverage_x10_scatterplot(selected_transcript, selected_gene, selected_sample
     """
     mean_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov", sample_ids=True)
     x10_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10", sample_ids=True)
-    statistics_value = get_stats_for_one_sample(Record, selected_sample, selected_transcript, selected_gene, "mean_cov")
 
     scatter = go.Scatter(
         x=x10_cov_data['value'],
@@ -126,8 +122,8 @@ def coverage_x10_scatterplot(selected_transcript, selected_gene, selected_sample
         text=mean_cov_data["id"],
         name="Mean coverage - coverage X10",
         marker=dict(
-            color=np.where(mean_cov_data['value'] == statistics_value, 'red', font_color),
-            size=np.where(mean_cov_data['value'] == statistics_value, 18, 12)))
+            color=np.where(mean_cov_data['id'] == selected_sample, 'red', font_color),
+            size=np.where(mean_cov_data['id'] == selected_sample, 18, 12)))
 
     data = [scatter]
 

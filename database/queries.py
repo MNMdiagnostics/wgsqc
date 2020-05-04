@@ -107,35 +107,3 @@ def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
         return pd.DataFrame(list(zip(statistics_values, sample_id_list)), columns=["value", "id"])
     else:
         return pd.DataFrame(statistics_values, columns=["value"])
-
-
-def get_stats_for_one_sample(table_name, sample, transcript, gene, stat):
-    """
-    Sample highlighting handler. Allows user to pass transcript ID, gene ID, sample ID and
-    statistics (one from following: "mean_cov", "cov_10", "cov_20", "cov_30") and returns
-    value for specified statistics for transcript of a specified gene from specified sample.
-
-    :param table_name: Name of a table to get stats (eg. Record).
-    :param sample: Sample to highlight selected in radiobox.
-    :param transcript: Transcript selected in dropdown.
-    :param gene: Gene selected in dropdown.
-    :param stat: Statistics to return (eg. "mean_cov").
-    :return: Value of satistics
-    """
-
-    session = Session()
-
-    stats = session.query(table_name)\
-            .filter(table_name.sample_id == sample) \
-            .filter(table_name.transcript_id == transcript) \
-            .filter(table_name.gene_id == gene)\
-            .all()
-
-    session.close()
-
-    try:
-        stat = getattr(stats[0], stat)
-    except IndexError:
-        return ""
-
-    return stat
