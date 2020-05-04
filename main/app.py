@@ -10,8 +10,7 @@ from dash.dependencies import Input, Output, State
 sys.path.append("..")
 from database.base import Record
 from database.queries import *
-from main.empty_plot import empty_plot
-from main.get_plots import get_boxplot, get_scatterplot, coverage_x10_scatterplot
+from main.get_plots import get_boxplot, get_scatterplot, coverage_x10_scatterplot, empty_plot
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
@@ -208,6 +207,8 @@ else:
             return get_scatterplot(selected_transcript, selected_gene, selected_sample, "cov_20")
         elif view == "X30 coverage boxplots":
             return get_scatterplot(selected_transcript, selected_gene, selected_sample, "cov_30")
+        else:
+            return empty_plot()
 
     @app.callback(
         Output('second-plot', 'figure'),
@@ -223,6 +224,8 @@ else:
             return get_boxplot(selected_transcript, selected_gene, "cov_20")
         elif view == "X30 coverage boxplots":
             return get_boxplot(selected_transcript, selected_gene, "cov_30")
+        else:
+            return empty_plot()
 
 
     @app.callback(

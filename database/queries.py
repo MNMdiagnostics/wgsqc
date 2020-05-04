@@ -79,12 +79,17 @@ def get_all_file_names(table_name: "Class", type: "String"):
 
 def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
     """
+    Allows user to pass wanted transcript ID, gene ID and statistics (one from following: "mean_cov",
+    "cov_10", "cov_20", "cov_30") and returns pd.DataFrame object with one or two columns (depends
+    if user wants corresponding statistics with sample ID's or not) of corresponding statistics for
+    matching gene and transcript.
+
     :param table_name: Name of a table to get stats (eg. Record).
-    :param transcript: Transcript symbol to filter.
-    :param gene: Gene symbol to filter.
-    :param stat: Statistics to return (eg. mean_cov).
-    :param samle_ids: True if function should produce sample IDs.
-    :return: List of wanted statistic values in all samples for given transcript and gene.
+    :param transcript: Transcript selected in dropdown.
+    :param gene: Gene selected in dropdown.
+    :param stat: Statistics to return (eg. "mean_cov").
+    :param samle_ids: True if function should return additional column with sample ID's.
+    :return: Pandas dataframe object of wanted statistic values in all samples for given transcript and gene.
     """
     session = Session()
 
@@ -105,6 +110,18 @@ def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
 
 
 def get_stats_for_one_sample(table_name, sample, transcript, gene, stat):
+    """
+    Sample highlighting handler. Allows user to pass transcript ID, gene ID, sample ID and
+    statistics (one from following: "mean_cov", "cov_10", "cov_20", "cov_30") and returns
+    value for specified statistics for transcript of a specified gene from specified sample.
+
+    :param table_name: Name of a table to get stats (eg. Record).
+    :param sample: Sample to highlight selected in radiobox.
+    :param transcript: Transcript selected in dropdown.
+    :param gene: Gene selected in dropdown.
+    :param stat: Statistics to return (eg. "mean_cov").
+    :return: Value of satistics
+    """
 
     session = Session()
 
