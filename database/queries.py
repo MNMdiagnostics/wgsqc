@@ -99,12 +99,12 @@ def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
     statistics_values = [getattr(obj, stat) for obj in values]
 
     if sample_ids:
-        return statistics_values, sample_id_list
+        return pd.DataFrame(list(zip(statistics_values, sample_id_list)), columns=["value", "id"])
     else:
-        return statistics_values
+        return pd.DataFrame(statistics_values, columns=["value"])
 
 
-def get_stats_for_one_sample(table_name, sample, transcript, gene):
+def get_stats_for_one_sample(table_name, sample, transcript, gene, stat):
 
     session = Session()
 
@@ -117,8 +117,8 @@ def get_stats_for_one_sample(table_name, sample, transcript, gene):
     session.close()
 
     try:
-        mean_cov, cov_10, cov_20, cov_30 = stats[0].mean_cov, stats[0].cov_10, stats[0].cov_20, stats[0].cov_30
+        stat = getattr(stats[0], stat)
     except IndexError:
-        mean_cov, cov_10, cov_20, cov_30 = "", "", "", ""
+        return ""
 
-    return mean_cov, cov_10, cov_20, cov_30
+    return stat

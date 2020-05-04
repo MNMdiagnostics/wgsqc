@@ -11,8 +11,7 @@ sys.path.append("..")
 from database.base import Record
 from database.queries import *
 from main.empty_plot import empty_plot
-from main.mean_cov_scatterplot import mean_cov_scatterplot
-from main.mean_cov_boxplots import mean_cov_boxplots
+from main.get_plots import get_boxplot, get_scatterplot, coverage_x10_scatterplot
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
@@ -66,18 +65,18 @@ else:
                             value=get_first_row_for_default(Record)
                         ))
 
-    transcripts_dropdown = dbc.Col(
-                dcc.Dropdown(id='transcripts-dropdown')
-            )
+    transcripts_dropdown = dbc.Col(dcc.Dropdown(id='transcripts-dropdown'))
 
     plots_dropdown = dbc.Col(
         dcc.Dropdown(
             id='plots-dropdown',
             options=[
                 {"label": "Mean coverage boxplots", "value": "Mean coverage boxplots"},
-                {"label": "Mean coverage - coverage X10", "value": "Mean coverage - coverage X10"},
+                {"label": "X10 coverage boxplots", "value": "X10 coverage boxplots"},
+                {"label": "X20 coverage boxplots", "value": "X20 coverage boxplots"},
+                {"label": "X30 coverage boxplots", "value": "X30 coverage boxplots"},
             ],
-            value='Mean coverage boxplots'
+            value='X10 coverage boxplots'
         )
     )
 
@@ -95,15 +94,13 @@ else:
     )
 
     # --------------------------- DEFAULT PLOT ---------------------------
-    default_plot = dcc.Graph(
+    first_plot = dcc.Graph(
             figure={
                 'data': [
-                    {'x': [],
-                     'y': [],
-                     }
+                    {'y': []}
                 ],
                 'layout':{
-                    "height": 700,
+                    "height": 800,
                     'plot_bgcolor': background_color,
                     'paper_bgcolor': background_color,
                     'font': {
@@ -111,29 +108,72 @@ else:
                     }
                 }
             },
-        id="default-plot",
+        id="first-plot",
+        style=graph
+    )
+
+    second_plot = dcc.Graph(
+        figure={
+            'data': [
+                {'x': [],
+                 'y': [],
+                 }
+            ],
+            'layout': {
+                "height": 800,
+                'plot_bgcolor': background_color,
+                'paper_bgcolor': background_color,
+                'font': {
+                    'color': font_color
+                }
+            }
+        },
+        id="second-plot",
+        style=graph
+    )
+
+    third_plot = dcc.Graph(
+        figure={
+            'data': [
+                {'x': [],
+                 'y': [],
+                 }
+            ],
+            'layout': {
+                "height": 800,
+                'plot_bgcolor': background_color,
+                'paper_bgcolor': background_color,
+                'font': {
+                    'color': font_color
+                }
+            }
+        },
+        id="third-plot",
         style=graph
     )
 
     # --------------------------- SIDEBAR SETTINGS ---------------------------
-    content = [html.Div(sample_id, id=f"{sample_id}-button") for sample_id in sorted(get_all_file_names(Record, "sample_id"))]
-    radio = dcc.RadioItems(
+    sidebar_content = dcc.RadioItems(
         options=[{'label': k, 'value': k} for k in sorted(get_all_file_names(Record, "sample_id"))],
-        id='radio-button'
-    )
+        id='radio-button')
+
     sidebar = dbc.Jumbotron(
-        radio,
+        sidebar_content,
         fluid=False,
         style=sidebar_style)
 
     body = html.Div([
         dbc.Row([
             dbc.Col(html.Div(sidebar), width='25%'),
-            dbc.Col(html.Div(default_plot))])],
+            dbc.Col(html.Div(first_plot)),
+            dbc.Col(html.Div(second_plot)),
+            dbc.Col(html.Div(third_plot)),
+        ])
+    ],
         style=body_style)
 
     # --------------------------- LAYOUT SETTINGS ---------------------------
-    app.layout = html.Div([navbar, html.Div(id="output-radio"), body])
+    app.layout = html.Div([navbar, body])
 
     # -----------------------------------------------------------------------
     # --------------------------- DROPDOWNS CALLBACKS ---------------------------
@@ -154,21 +194,44 @@ else:
             return []
 
     @app.callback(
-        Output('default-plot', 'figure'),
+        Output('first-plot', 'figure'),
         [Input('genes-dropdown', 'value'),
          Input('transcripts-dropdown', 'value'),
-         Input('plots-dropdown', 'value'),
+         Input('radio-button', 'value'),
+         Input('plots-dropdown', 'value')])
+    def display_scatter(selected_gene, selected_transcript, selected_sample, view):
+        if view == "Mean coverage boxplots":
+            return get_scatterplot(selected_transcript, selected_gene, selected_sample, "mean_cov")
+        elif view == "X10 coverage boxplots":
+            return get_scatterplot(selected_transcript, selected_gene, selected_sample, "cov_10")
+        elif view == "X20 coverage boxplots":
+            return get_scatterplot(selected_transcript, selected_gene, selected_sample, "cov_20")
+        elif view == "X30 coverage boxplots":
+            return get_scatterplot(selected_transcript, selected_gene, selected_sample, "cov_30")
+
+    @app.callback(
+        Output('second-plot', 'figure'),
+        [Input('genes-dropdown', 'value'),
+         Input('transcripts-dropdown', 'value'),
+         Input('plots-dropdown', 'value')])
+    def display_box(selected_gene, selected_transcript, view):
+        if view == "Mean coverage boxplots":
+            return get_boxplot(selected_transcript, selected_gene, "mean_cov")
+        elif view == "X10 coverage boxplots":
+            return get_boxplot(selected_transcript, selected_gene, "cov_10")
+        elif view == "X20 coverage boxplots":
+            return get_boxplot(selected_transcript, selected_gene, "cov_20")
+        elif view == "X30 coverage boxplots":
+            return get_boxplot(selected_transcript, selected_gene, "cov_30")
+
+
+    @app.callback(
+        Output('third-plot', 'figure'),
+        [Input('genes-dropdown', 'value'),
+         Input('transcripts-dropdown', 'value'),
          Input('radio-button', 'value')])
-    def set_display_children(selected_gene, selected_transcript, view_type, selected_sample):
-
-        if view_type == "Mean coverage boxplots":
-            return mean_cov_boxplots(selected_transcript, selected_gene, selected_sample)
-
-        elif view_type == "Mean coverage - coverage X10":
-            return mean_cov_scatterplot(selected_transcript, selected_gene, selected_sample)
-
-        else:
-            return empty_plot(selected_sample)
+    def display_second_scatter(selected_gene, selected_transcript, selected_sample):
+        return coverage_x10_scatterplot(selected_transcript, selected_gene, selected_sample)
 
 
     if __name__ == "__main__":
