@@ -25,6 +25,8 @@ def mean_cov_boxplots(selected_transcript, selected_gene, selected_sample):
         y=mean_cov_data,
         name="Mean coverage",
         text=mean_cov_sample_ids,
+        jitter=0.3,
+        boxpoints='all',
         marker=dict(
             color=font_color,
         ),
@@ -46,6 +48,8 @@ def mean_cov_boxplots(selected_transcript, selected_gene, selected_sample):
         y=x20_cov_data,
         name="Coverage X20",
         text=x20_cov_sample_ids,
+        jitter=0.3,
+        boxpoints='all',
         marker=dict(
             color=font_color),
         showlegend=False)
@@ -53,6 +57,8 @@ def mean_cov_boxplots(selected_transcript, selected_gene, selected_sample):
     x30_box = go.Box(
         y=x30_cov_data,
         name="Coverage X30",
+        jitter=0.3,
+        boxpoints='all',
         text=x30_cov_sample_ids,
         marker=dict(
             color=font_color),
