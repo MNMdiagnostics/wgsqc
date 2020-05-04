@@ -118,7 +118,8 @@ else:
     # --------------------------- SIDEBAR SETTINGS ---------------------------
     content = [html.Div(sample_id, id=f"{sample_id}-button") for sample_id in sorted(get_all_file_names(Record, "sample_id"))]
     radio = dcc.RadioItems(
-        options=[{'label': k, 'value': k} for k in sorted(get_all_file_names(Record, "sample_id"))]
+        options=[{'label': k, 'value': k} for k in sorted(get_all_file_names(Record, "sample_id"))],
+        id='radio-button'
     )
     sidebar = dbc.Jumbotron(
         radio,
@@ -132,11 +133,11 @@ else:
         style=body_style)
 
     # --------------------------- LAYOUT SETTINGS ---------------------------
-    app.layout = html.Div([navbar, body])
+    app.layout = html.Div([navbar, html.Div(id="output-radio"), body])
 
     # -----------------------------------------------------------------------
-
     # --------------------------- DROPDOWNS CALLBACKS ---------------------------
+
     @app.callback(
         Output('transcripts-dropdown', 'options'),
         [Input('genes-dropdown', 'value')])
@@ -156,17 +157,18 @@ else:
         Output('default-plot', 'figure'),
         [Input('genes-dropdown', 'value'),
          Input('transcripts-dropdown', 'value'),
-         Input('plots-dropdown', 'value')])
-    def set_display_children(selected_gene, selected_transcript, view_type):
+         Input('plots-dropdown', 'value'),
+         Input('radio-button', 'value')])
+    def set_display_children(selected_gene, selected_transcript, view_type, selected_sample):
 
         if view_type == "Mean coverage boxplots":
-            return mean_cov_boxplots(selected_transcript, selected_gene)
+            return mean_cov_boxplots(selected_transcript, selected_gene, selected_sample)
 
         elif view_type == "Mean coverage - coverage X10":
-            return mean_cov_scatterplot(selected_transcript, selected_gene)
+            return mean_cov_scatterplot(selected_transcript, selected_gene, selected_sample)
 
         else:
-            return empty_plot()
+            return empty_plot(selected_sample)
 
 
     if __name__ == "__main__":

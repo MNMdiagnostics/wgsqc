@@ -3,7 +3,7 @@ import plotly.graph_objs as go
 components_color = '#080808'
 
 
-def empty_plot():
+def empty_plot(selected_sample):
     scat = go.Scatter(
         x=[],
         y=[]

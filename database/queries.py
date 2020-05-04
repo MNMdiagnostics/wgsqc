@@ -3,6 +3,7 @@ sys.path.append("..")
 from database.base import Session
 from collections import defaultdict
 import time
+import pandas as pd
 
 
 def get_first_row_for_default(table_name: "Class"):
@@ -60,7 +61,7 @@ def get_transcripts_by_gene(table_name: "Class", type: "String"):
 def get_all_file_names(table_name: "Class", type: "String"):
     """
     :param table_name: Name of a table to get file names.
-    :return: List of all distinct record objects or sample_id's of this objects.
+    :return: List of all distinct record objects or strings of sample_id's.
     """
     session = Session()
 
@@ -101,3 +102,23 @@ def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
         return statistics_values, sample_id_list
     else:
         return statistics_values
+
+
+def get_stats_for_one_sample(table_name, sample, transcript, gene):
+
+    session = Session()
+
+    stats = session.query(table_name)\
+            .filter(table_name.sample_id == sample) \
+            .filter(table_name.transcript_id == transcript) \
+            .filter(table_name.gene_id == gene)\
+            .all()
+
+    session.close()
+
+    try:
+        mean_cov, cov_10, cov_20, cov_30 = stats[0].mean_cov, stats[0].cov_10, stats[0].cov_20, stats[0].cov_30
+    except IndexError:
+        mean_cov, cov_10, cov_20, cov_30 = "", "", "", ""
+
+    return mean_cov, cov_10, cov_20, cov_30
