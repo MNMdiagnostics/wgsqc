@@ -27,6 +27,7 @@ $ sudo apt-get install git
 $ git clone git@github.com:MNMdiagnostics/wgsqc.git
 $ cd ./wgsqc/
 ```
+
 2. Prepare .env file with environment variables for database (example .env file is located in ./database/database.env)
 
 3. Set up your Docker container and check if container is running
@@ -34,20 +35,30 @@ $ cd ./wgsqc/
 $ docker run --name <POSTGRES_DB> -p <POSTGRES_PORT>:<POSTGRES_PORT> --env-file <env_file_path> -d postgres
 $ docker container ls
 ```
+
 4. Check your Python version
 ```
 $ python --version
 ```
+
 5. Install required packages
 ```
 $ pip install -r requirements.txt
 ```
+
 6. If creating new database place your data in main directory and run inserts.py
 ```
 $ mv <path_to_your_data> .
 $ cd ./database/
-$ python inserts.py
+$ python inserts.py <path_to_root_data_directory>
 ```
+
+7. Run app
+```
+$ cd main/
+$ python app.py
+```
+
 ### 4. Data
 ### 5. Examples
 
