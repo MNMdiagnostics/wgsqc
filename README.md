@@ -18,6 +18,7 @@ The aim of this project was to create a tool for genome analysts to easily check
 
 ### 3. Installation
 To run this project Docker version >= 18.09.9 and Python version >= 3.8 is required.
+
 #### 3.1 Linux
 1. Install Git and clone repository.
 ```
@@ -27,6 +28,7 @@ $ git clone git@github.com:MNMdiagnostics/wgsqc.git
 $ cd ./wgsqc/
 ```
 2. Prepare .env file with environment variables for database (example .env file is located in ./database/database.env)
+
 3. Set up your Docker container and check if container is running
 ```
 $ docker run --name <POSTGRES_DB> -p <POSTGRES_PORT>:<POSTGRES_PORT> --env-file <env_file_path> -d postgres
