@@ -1,11 +1,11 @@
 # Whole Genome Sequencing quality check
 
 ## Table of contents
-* [Description](#Description)
-* [Technologies](#Dechnologies)
-* [Installation](#Installation)
-* [Data](#Data)
-* [Examples](#Examples)
+  * [Description](#Description)
+  * [Technologies](#Dechnologies)
+  * [Installation](#Installation)
+  * [Data](#Data)
+  * [Examples](#Examples)
 
 
 ### Description
@@ -60,5 +60,71 @@ To run this project Docker version >= 18.09.9 and Python version >= 3.8 is requi
   ```
 
 ### 4. Data
-### 5. Examples
 
+Current version allows user to create new database and insert user's files or connect to existing database and use it.
+If inserting files, specific format is required.
+
+```
+  root_data_directory-
+                     | - - - FOLDER1 - - - FILE1
+                     |
+                     | - - - FOLDER2 - - - FILE2
+                     |
+                     | - - - FOLDER3 - - - FILE3
+                     |
+                     | - - - FOLDER4 - - - FILE4
+                     |
+                     |...
+```
+Files should contain 6 tab-delimited columns:
+  * Gene ID
+  * Transcript ID
+  * Mean coverage
+  * Coverage X10
+  * Coverage X20
+  * Coverage X30
+
+
+### 5. Examples
+  1. Clone repo
+  ```
+  $ git clone git@github.com:MNMdiagnostics/wgsqc.git
+  $ cd ./wgsqc/
+  ```
+  
+  2. Set up .env file located in database/database.env
+  ```
+  POSTGRES_USER=test_user
+  POSTGRES_PASSWORD=test
+  POSTGRES_HOST=localhost
+  POSTGRES_PORT=5432
+  POSTGRES_DB=test_name
+  ```
+  
+  3. Run docker container
+  ```
+  $ docker run --name test_name -p 5432:5432 --env-file database/database.env -d postgres
+  $ docker container ls
+  ```
+  
+  4. Install required packages
+  ```
+  $ pip install -r requirements.txt
+  ```
+  
+  5. Move your data to project main directory and run inserts
+  ```
+  $ mv ~/wgsqc_data .
+  $ cd database/
+  $ python inserts.py ~/wgsqc_data
+  $ cd ../main
+  ```
+  
+  6. Run app
+  ```
+  $ python app.py
+  ```
+  
+  7. Enter IP adress from terminal to your browser
+  ![Enter IP adress](~/ip.png)
+  
