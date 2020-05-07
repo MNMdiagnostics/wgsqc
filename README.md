@@ -86,13 +86,13 @@ Files should contain 6 tab-delimited columns:
 
 
 ### 5. Examples
-  1. Clone repo
+  ##### 1. Clone repo
   ```
   $ git clone git@github.com:MNMdiagnostics/wgsqc.git
   $ cd ./wgsqc/
   ```
   
-  2. Set up .env file located in database/database.env
+  ##### 2. Set up .env file located in database/database.env
   ```
   POSTGRES_USER=test_user
   POSTGRES_PASSWORD=test
@@ -101,18 +101,18 @@ Files should contain 6 tab-delimited columns:
   POSTGRES_DB=test_name
   ```
   
-  3. Run docker container
+  ##### 3. Run docker container
   ```
   $ docker run --name test_name -p 5432:5432 --env-file database/database.env -d postgres
   $ docker container ls
   ```
   
-  4. Install required packages
+  ##### 4. Install required packages
   ```
   $ pip install -r requirements.txt
   ```
   
-  5. Move your data to project main directory and run inserts
+  ##### 5. Move your data to project main directory and run inserts
   ```
   $ mv ~/wgsqc_data .
   $ cd database/
@@ -120,11 +120,11 @@ Files should contain 6 tab-delimited columns:
   $ cd ../main
   ```
   
-  6. Run app
+  ##### 6. Run app
   ```
   $ python app.py
   ```
   
-  7. Enter IP adress from terminal to your browser
+  ##### 7. Enter IP adress from terminal to your browser
   ![Enter IP adress](/images/ip.png)
   
