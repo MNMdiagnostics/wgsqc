@@ -126,5 +126,5 @@ Files should contain 6 tab-delimited columns:
   ```
   
   7. Enter IP adress from terminal to your browser
-  ![Enter IP adress](~/ip.png)
+  ![Enter IP adress](/images/ip.png)
   
