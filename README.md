@@ -28,7 +28,7 @@ To run this project Docker version >= 18.09.9 and Python version >= 3.8 is requi
   $ cd ./wgsqc/
   ```
 
-  ##### Prepare .env file with environment variables for database (example .env file is located in ./database/database.env)
+  ##### Prepare .env file with environmental variables for database (example .env file is located in ./database/database.env)
 
   ##### Set up your Docker container and check if container is running
   ```
