@@ -41,9 +41,14 @@ To run this project Docker version >= 18.09.9 and Python version >= 3.8 is requi
   $ python --version
   ```
 
-  ##### Install required packages
+  ##### Install required python packages
   ```
   $ pip install -r requirements.txt
+  ```
+  ##### Install required OS packages
+  ```
+  $ sudo apt-get update -y
+  $ sudo apt-get install -y libpq-dev
   ```
 
   ##### If creating new database place your data in main directory and run inserts.py
