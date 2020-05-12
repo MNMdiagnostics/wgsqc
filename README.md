@@ -115,6 +115,9 @@ Files should contain 6 tab-delimited columns:
   ##### 4. Install required packages
   ```
   $ pip install -r requirements.txt
+  
+  $ sudo apt-get update -y
+  $ sudo apt-get install -y libpq-dev
   ```
   
   ##### 5. Move your data to project main directory and run inserts
