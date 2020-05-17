@@ -10,7 +10,7 @@ from dash.dependencies import Input, Output, State
 sys.path.append("..")
 from database.base import Record
 from database.queries import *
-from main.get_plots import get_boxplot, get_scatterplot, coverage_x10_scatterplot, empty_plot
+from main.get_plots import get_boxplot, get_scatterplot, get_small_scatter, empty_plot
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
@@ -21,6 +21,7 @@ border_color = "#1a1a1a"
 background_color = "#000000"
 font_color = '#7FDBFF'
 components_color = '#080808'
+graph_height = '600px'
 
 
 navbar = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
@@ -32,7 +33,7 @@ navbar = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
 graph = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
          'padding': '10px 10px 10px 10px',
          'backgroundColor': components_color,
-         'height': '800px',
+         'height': graph_height,
          'border': f'2px {border_color} solid',
          'border-radius': 10}
 
@@ -44,7 +45,7 @@ sidebar_style = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBotto
                  'padding': '10px 10px 10px 10px',
                  'border': f'2px {border_color} solid',
                  'backgroundColor': components_color,
-                 'height': '800px',
+                 'height': '1210px',
                  'width': '160px',
                  'overflowY': 'scroll',
                  'border-radius': 10}
@@ -66,16 +67,16 @@ else:
 
     transcripts_dropdown = dbc.Col(dcc.Dropdown(id='transcripts-dropdown'))
 
-    plots_dropdown = dbc.Col(
+    boxplot_dropdown = dbc.Col(
         dcc.Dropdown(
-            id='plots-dropdown',
+            id='boxplot-view-dropdown',
             options=[
                 {"label": "Mean coverage boxplots", "value": "Mean coverage boxplots"},
                 {"label": "X10 coverage boxplots", "value": "X10 coverage boxplots"},
                 {"label": "X20 coverage boxplots", "value": "X20 coverage boxplots"},
                 {"label": "X30 coverage boxplots", "value": "X30 coverage boxplots"},
             ],
-            value='X10 coverage boxplots'
+            value='Mean coverage boxplots'
         )
     )
 
@@ -83,7 +84,7 @@ else:
     navbar = dbc.Navbar(
         [
             html.H3("WGSqc"),
-            plots_dropdown,
+            boxplot_dropdown,
             genes_dropdown,
             transcripts_dropdown,
         ],
@@ -93,13 +94,13 @@ else:
     )
 
     # --------------------------- DEFAULT PLOT ---------------------------
-    first_plot = dcc.Graph(
+    big_scatter = dcc.Graph(
             figure={
                 'data': [
                     {'y': []}
                 ],
                 'layout':{
-                    "height": 800,
+                    "height": graph_height,
                     'plot_bgcolor': background_color,
                     'paper_bgcolor': background_color,
                     'font': {
@@ -107,11 +108,11 @@ else:
                     }
                 }
             },
-        id="first-plot",
+        id="big-scatter-plot",
         style=graph
     )
 
-    second_plot = dcc.Graph(
+    box_plot = dcc.Graph(
         figure={
             'data': [
                 {'x': [],
@@ -119,7 +120,7 @@ else:
                  }
             ],
             'layout': {
-                "height": 800,
+                "height": graph_height,
                 'plot_bgcolor': background_color,
                 'paper_bgcolor': background_color,
                 'font': {
@@ -127,11 +128,11 @@ else:
                 }
             }
         },
-        id="second-plot",
+        id="box-plot",
         style=graph
     )
 
-    third_plot = dcc.Graph(
+    small_scatter = dcc.Graph(
         figure={
             'data': [
                 {'x': [],
@@ -139,7 +140,7 @@ else:
                  }
             ],
             'layout': {
-                "height": 800,
+                "height": graph_height,
                 'plot_bgcolor': background_color,
                 'paper_bgcolor': background_color,
                 'font': {
@@ -147,14 +148,14 @@ else:
                 }
             }
         },
-        id="third-plot",
+        id="small-scatter-plot",
         style=graph
     )
 
     # --------------------------- SIDEBAR SETTINGS ---------------------------
     sidebar_content = dcc.RadioItems(
         options=[{'label': k, 'value': k} for k in sorted(get_all_file_names(Record, "sample_id"))],
-        id='radio-button')
+        id='radio-buttons')
 
     sidebar = dbc.Jumbotron(
         sidebar_content,
@@ -163,10 +164,16 @@ else:
 
     body = html.Div([
         dbc.Row([
-            dbc.Col(html.Div(sidebar), width='25%'),
-            dbc.Col(html.Div(first_plot)),
-            dbc.Col(html.Div(second_plot)),
-            dbc.Col(html.Div(third_plot)),
+            dbc.Col(html.Div(sidebar), width="25%"),
+            dbc.Col([
+                dbc.Row(
+                    dbc.Col(html.Div(big_scatter))
+                ),
+                dbc.Row([
+                    dbc.Col(html.Div(box_plot)),
+                    dbc.Col(html.Div(small_scatter))
+                ])
+            ])
         ])
     ],
         style=body_style)
@@ -174,7 +181,6 @@ else:
     # --------------------------- LAYOUT SETTINGS ---------------------------
     app.layout = html.Div([navbar, body])
 
-    # -----------------------------------------------------------------------
     # --------------------------- DROPDOWNS CALLBACKS ---------------------------
 
     @app.callback(
@@ -193,28 +199,18 @@ else:
             return []
 
     @app.callback(
-        Output('first-plot', 'figure'),
+        Output('big-scatter-plot', 'figure'),
         [Input('genes-dropdown', 'value'),
          Input('transcripts-dropdown', 'value'),
-         Input('radio-button', 'value'),
-         Input('plots-dropdown', 'value')])
-    def display_scatter(selected_gene, selected_transcript, selected_sample, view):
-        if view == "Mean coverage boxplots":
-            return get_scatterplot(selected_transcript, selected_gene, selected_sample, "mean_cov")
-        elif view == "X10 coverage boxplots":
-            return get_scatterplot(selected_transcript, selected_gene, selected_sample, "cov_10")
-        elif view == "X20 coverage boxplots":
-            return get_scatterplot(selected_transcript, selected_gene, selected_sample, "cov_20")
-        elif view == "X30 coverage boxplots":
-            return get_scatterplot(selected_transcript, selected_gene, selected_sample, "cov_30")
-        else:
-            return empty_plot()
+         Input('radio-buttons', 'value')])
+    def display_big_scatter(selected_gene, selected_transcript, selected_sample):
+        return get_scatterplot(selected_transcript, selected_gene, selected_sample)
 
     @app.callback(
-        Output('second-plot', 'figure'),
+        Output('box-plot', 'figure'),
         [Input('genes-dropdown', 'value'),
          Input('transcripts-dropdown', 'value'),
-         Input('plots-dropdown', 'value')])
+         Input('boxplot-view-dropdown', 'value')])
     def display_box(selected_gene, selected_transcript, view):
         if view == "Mean coverage boxplots":
             return get_boxplot(selected_transcript, selected_gene, "mean_cov")
@@ -227,19 +223,16 @@ else:
         else:
             return empty_plot()
 
-
     @app.callback(
-        Output('third-plot', 'figure'),
+        Output('small-scatter-plot', 'figure'),
         [Input('genes-dropdown', 'value'),
          Input('transcripts-dropdown', 'value'),
-         Input('radio-button', 'value')])
-    def display_second_scatter(selected_gene, selected_transcript, selected_sample):
-        return coverage_x10_scatterplot(selected_transcript, selected_gene, selected_sample)
-
+         Input('radio-buttons', 'value')])
+    def display_small_scatter(selected_gene, selected_transcript, selected_sample):
+        return get_small_scatter(selected_transcript, selected_gene, selected_sample)
 
     if __name__ == "__main__":
         app.run_server(debug=True)
 
-# TODO: Add dropdown/left-side menu to highlight wanted sample.
-# TODO: Try to edit style and informations on hoverlabel.
+# TODO: Fix boxplots range to 100.
 # TODO: Maybe number of samples showed on navbar.

@@ -6,6 +6,7 @@ import numpy as np
 
 components_color = '#080808'
 font_color = '#7FDBFF'
+fig_height = 570
 
 
 def get_boxplot(selected_transcript, selected_gene, statistics):
@@ -18,10 +19,8 @@ def get_boxplot(selected_transcript, selected_gene, statistics):
     :return: Figure object to update graph.
     """
 
-    # GET PANDAS DATAFRAME OF CHOSEN STATISTICS VALUES FOR MATCHING GENE AND TRANSCRIPT
     stat_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, statistics,
-                                                            sample_ids=True)
-    n_samples = len(stat_dataframe["value"])
+                                        sample_ids=True)
 
     boxplot = go.Box(
         y=stat_dataframe['value'],
@@ -33,21 +32,22 @@ def get_boxplot(selected_transcript, selected_gene, statistics):
         ),
         showlegend=False)
 
-    data = [boxplot]
+    all_plots = [boxplot]
 
-    layout = go.Layout(title=f"{statistics} boxplot, n_samples: {n_samples}",
-                       height=750,
+    layout = go.Layout(title=f"{statistics} boxplot",
+                       height=fig_height,
                        paper_bgcolor=components_color,
                        plot_bgcolor=components_color,
                        font={
                            "size": 18,
                            "color": font_color
                        })
-    fig = go.Figure(data=data, layout=layout)
+    fig = go.Figure(data=all_plots, layout=layout)
+
     return fig
 
 
-def get_scatterplot(selected_transcript, selected_gene, selected_sample, statistics):
+def get_scatterplot(selected_transcript, selected_gene, selected_sample):
     """
     Graph object updating handler for coverage scatterlot.
 
@@ -58,28 +58,81 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample, statist
     :return: Figure object to update graph.
     """
 
-    # GET PANDAS DATAFRAME OF CHOSEN STATISTICS VALUES FOR MATCHING GENE AND TRANSCRIPT
-    stat_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, statistics,
-                                                            sample_ids=True)
-    scatter = go.Scatter(
-        y=stat_dataframe['value'],
-        x=[x for x in range(len(stat_dataframe['value']))],
-        name=f"{statistics}",
+    mean_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov",
+                                        sample_ids=True).sort_values(by=['id'])
+    x10_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10",
+                                        sample_ids=True).sort_values(by=['id'])
+    x20_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_20",
+                                       sample_ids=True).sort_values(by=['id'])
+    x30_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_30",
+                                       sample_ids=True).sort_values(by=['id'])
+
+    n_samples = len(mean_dataframe['id'])
+
+    scatter_mean = go.Scatter(
+        y=mean_dataframe['value'],
+        x=[x for x in range(len(mean_dataframe['value']))],
+        name="mean coverage",
         mode='markers',
         hovertemplate=
         '<i>Sample: </i>%{text}' +
         '<br><i>Value: </i>%{y}<br>',
-        text=stat_dataframe['id'],
+        text=mean_dataframe['id'],
         marker=dict(
-            color=np.where(stat_dataframe['id'] == selected_sample, 'red', font_color),
-            size=np.where(stat_dataframe['id'] == selected_sample, 18, 12)
+            color=np.where(mean_dataframe['id'] == selected_sample, 'red', font_color),
+            size=np.where(mean_dataframe['id'] == selected_sample, 18, 12)
         ),
         showlegend=False)
 
-    data = [scatter]
+    scatter_x10 = go.Scatter(
+        y=x10_dataframe['value'],
+        x=[x for x in range(len(x10_dataframe['value']))],
+        name="X10 coverage",
+        mode='markers',
+        hovertemplate=
+        '<i>Sample: </i>%{text}' +
+        '<br><i>Value: </i>%{y}<br>',
+        text=x10_dataframe['id'],
+        marker=dict(
+            color=np.where(x10_dataframe['id'] == selected_sample, 'red', "green"),
+            size=np.where(x10_dataframe['id'] == selected_sample, 18, 12)
+        ),
+        showlegend=False)
 
-    layout = go.Layout(title=f"{statistics} scatterplot",
-                       height=750,
+    scatter_x20 = go.Scatter(
+        y=x20_dataframe['value'],
+        x=[x for x in range(len(x20_dataframe['value']))],
+        name="X20 coverage",
+        mode='markers',
+        hovertemplate=
+        '<i>Sample: </i>%{text}' +
+        '<br><i>Value: </i>%{y}<br>',
+        text=x20_dataframe['id'],
+        marker=dict(
+            color=np.where(x20_dataframe['id'] == selected_sample, 'red', "orange"),
+            size=np.where(x20_dataframe['id'] == selected_sample, 18, 12)
+        ),
+        showlegend=False)
+
+    scatter_x30 = go.Scatter(
+        y=x30_dataframe['value'],
+        x=[x for x in range(len(x30_dataframe['value']))],
+        name="X30 coverage",
+        mode='markers',
+        hovertemplate=
+        '<i>Sample: </i>%{text}' +
+        '<br><i>Value: </i>%{y}<br>',
+        text=x30_dataframe['id'],
+        marker=dict(
+            color=np.where(x30_dataframe['id'] == selected_sample, 'red', "blue"),
+            size=np.where(x30_dataframe['id'] == selected_sample, 18, 12)
+        ),
+        showlegend=False)
+
+    all_plots = [scatter_mean, scatter_x10, scatter_x20, scatter_x30]
+
+    layout = go.Layout(title=f"Coverages across samples, number of samples: {n_samples}",
+                       height=fig_height,
                        hoverlabel=dict(
                            bgcolor='black',
                            font_size=16,
@@ -87,19 +140,18 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample, statist
                        ),
                        paper_bgcolor=components_color,
                        plot_bgcolor=components_color,
-                       xaxis={'title': '',
-                              'showgrid': False,
-                              'ticks': '',
-                              'showticklabels': False},
+                       xaxis={'tickvals': [x for x in range(len(mean_dataframe['id']))],
+                              'ticktext': mean_dataframe['id']
+                              },
                        font={
                            "size": 18,
                            "color": font_color
                        })
-    fig = go.Figure(data=data, layout=layout)
+    fig = go.Figure(data=all_plots, layout=layout)
     return fig
 
 
-def coverage_x10_scatterplot(selected_transcript, selected_gene, selected_sample):
+def get_small_scatter(selected_transcript, selected_gene, selected_sample):
     """
     Graph object updating handler for mean_coverage-coverageX10 plot.
 
@@ -125,10 +177,10 @@ def coverage_x10_scatterplot(selected_transcript, selected_gene, selected_sample
             color=np.where(mean_cov_data['id'] == selected_sample, 'red', font_color),
             size=np.where(mean_cov_data['id'] == selected_sample, 18, 12)))
 
-    data = [scatter]
+    all_plots = [scatter]
 
     layout = go.Layout(title=f"Mean coverage - coverage X10",
-                       height=750,
+                       height=fig_height,
                        paper_bgcolor=components_color,
                        plot_bgcolor=components_color,
                        hoverlabel=dict(
@@ -143,7 +195,7 @@ def coverage_x10_scatterplot(selected_transcript, selected_gene, selected_sample
                            "color": font_color
                        }
                        )
-    fig = go.Figure(data=data, layout=layout)
+    fig = go.Figure(data=all_plots, layout=layout)
     return fig
 
 
@@ -152,10 +204,11 @@ def empty_plot():
         x=[],
         y=[]
     )
-    data = [scat]
-    layout = go.Layout(height=750,
+    all_plots = [scat]
+    layout = go.Layout(height=fig_height,
                        paper_bgcolor=components_color,
                        plot_bgcolor=components_color
                        )
-    fig = go.Figure(data=data, layout=layout)
+    fig = go.Figure(data=all_plots, layout=layout)
+
     return fig
