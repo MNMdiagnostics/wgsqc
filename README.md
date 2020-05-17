@@ -28,7 +28,7 @@ To run this project Docker version >= 18.09.9 and Python version >= 3.8 is requi
   $ cd ./wgsqc/
   ```
 
-  ##### Prepare .env file with environment variables for database (example .env file is located in ./database/database.env)
+  ##### Prepare .env file with environmental variables for database (example .env file is located in ./database/database.env)
 
   ##### Set up your Docker container and check if container is running
   ```
@@ -41,9 +41,14 @@ To run this project Docker version >= 18.09.9 and Python version >= 3.8 is requi
   $ python --version
   ```
 
-  ##### Install required packages
+  ##### Install required python packages
   ```
   $ pip install -r requirements.txt
+  ```
+  ##### Install required OS packages
+  ```
+  $ sudo apt-get update -y
+  $ sudo apt-get install -y libpq-dev
   ```
 
   ##### If creating new database place your data in main directory and run inserts.py
@@ -86,13 +91,13 @@ Files should contain 6 tab-delimited columns:
 
 
 ### 5. Examples
-  1. Clone repo
+  ##### 1. Clone repo
   ```
   $ git clone git@github.com:MNMdiagnostics/wgsqc.git
   $ cd ./wgsqc/
   ```
   
-  2. Set up .env file located in database/database.env
+  ##### 2. Set up .env file located in database/database.env
   ```
   POSTGRES_USER=test_user
   POSTGRES_PASSWORD=test
@@ -101,18 +106,21 @@ Files should contain 6 tab-delimited columns:
   POSTGRES_DB=test_name
   ```
   
-  3. Run docker container
+  ##### 3. Run docker container
   ```
   $ docker run --name test_name -p 5432:5432 --env-file database/database.env -d postgres
   $ docker container ls
   ```
   
-  4. Install required packages
+  ##### 4. Install required packages
   ```
   $ pip install -r requirements.txt
+  
+  $ sudo apt-get update -y
+  $ sudo apt-get install -y libpq-dev
   ```
   
-  5. Move your data to project main directory and run inserts
+  ##### 5. Move your data to project main directory and run inserts
   ```
   $ mv ~/wgsqc_data .
   $ cd database/
@@ -120,11 +128,11 @@ Files should contain 6 tab-delimited columns:
   $ cd ../main
   ```
   
-  6. Run app
+  ##### 6. Run app
   ```
   $ python app.py
   ```
   
-  7. Enter IP adress from terminal to your browser
+  ##### 7. Enter IP adress from terminal to your browser
   ![Enter IP adress](/images/ip.png)
   
