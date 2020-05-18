@@ -136,3 +136,9 @@ Files should contain 6 tab-delimited columns:
   ##### 7. Enter IP adress from terminal to your browser
   ![Enter IP adress](/images/ip.png)
   
+  
+ 
+![Big scatter plot](/images/big_scatter.png)
+![Small scatter plot](/images/small_scatter.png)
+![Boxplot](/images/box.png)
+  
