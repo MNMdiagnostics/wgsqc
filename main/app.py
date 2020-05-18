@@ -232,7 +232,8 @@ else:
         return get_small_scatter(selected_transcript, selected_gene, selected_sample)
 
     if __name__ == "__main__":
-        app.run_server(debug=True)
+        app.run_server(debug=False)
 
 # TODO: Fix boxplots range to 100.
 # TODO: Maybe number of samples showed on navbar.
+# TODO: Debug to false.
