@@ -7,6 +7,8 @@ import numpy as np
 components_color = '#080808'
 font_color = '#7FDBFF'
 fig_height = 570
+marker_default_size = 10
+marker_selected_size = 18
 
 
 def get_boxplot(selected_transcript, selected_gene, statistics):
@@ -79,10 +81,10 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample):
         '<br><i>Value: </i>%{y}<br>',
         text=mean_dataframe['id'],
         marker=dict(
-            color=np.where(mean_dataframe['id'] == selected_sample, 'red', font_color),
-            size=np.where(mean_dataframe['id'] == selected_sample, 18, 12)
+            color=np.where(mean_dataframe['id'] == selected_sample, 'red', "#FCBF1E"),
+            size=np.where(mean_dataframe['id'] == selected_sample, marker_selected_size, marker_default_size)
         ),
-        showlegend=False)
+        showlegend=True)
 
     scatter_x10 = go.Scatter(
         y=x10_dataframe['value'],
@@ -94,10 +96,10 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample):
         '<br><i>Value: </i>%{y}<br>',
         text=x10_dataframe['id'],
         marker=dict(
-            color=np.where(x10_dataframe['id'] == selected_sample, 'red', "green"),
-            size=np.where(x10_dataframe['id'] == selected_sample, 18, 12)
+            color=np.where(x10_dataframe['id'] == selected_sample, 'red', font_color),
+            size=np.where(x10_dataframe['id'] == selected_sample, marker_selected_size, marker_default_size)
         ),
-        showlegend=False)
+        showlegend=True)
 
     scatter_x20 = go.Scatter(
         y=x20_dataframe['value'],
@@ -109,10 +111,10 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample):
         '<br><i>Value: </i>%{y}<br>',
         text=x20_dataframe['id'],
         marker=dict(
-            color=np.where(x20_dataframe['id'] == selected_sample, 'red', "orange"),
-            size=np.where(x20_dataframe['id'] == selected_sample, 18, 12)
+            color=np.where(x20_dataframe['id'] == selected_sample, 'red', "#035AA6"),
+            size=np.where(x20_dataframe['id'] == selected_sample, marker_selected_size, marker_default_size)
         ),
-        showlegend=False)
+        showlegend=True)
 
     scatter_x30 = go.Scatter(
         y=x30_dataframe['value'],
@@ -124,10 +126,10 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample):
         '<br><i>Value: </i>%{y}<br>',
         text=x30_dataframe['id'],
         marker=dict(
-            color=np.where(x30_dataframe['id'] == selected_sample, 'red', "blue"),
-            size=np.where(x30_dataframe['id'] == selected_sample, 18, 12)
+            color=np.where(x30_dataframe['id'] == selected_sample, 'red', "#120136"),
+            size=np.where(x30_dataframe['id'] == selected_sample, marker_selected_size, marker_default_size)
         ),
-        showlegend=False)
+        showlegend=True)
 
     all_plots = [scatter_mean, scatter_x10, scatter_x20, scatter_x30]
 
@@ -143,6 +145,7 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample):
                        xaxis={'tickvals': [x for x in range(len(mean_dataframe['id']))],
                               'ticktext': mean_dataframe['id']
                               },
+                       yaxis=dict(range=[0, 100.5]),
                        font={
                            "size": 18,
                            "color": font_color
@@ -175,7 +178,7 @@ def get_small_scatter(selected_transcript, selected_gene, selected_sample):
         name="Mean coverage - coverage X10",
         marker=dict(
             color=np.where(mean_cov_data['id'] == selected_sample, 'red', font_color),
-            size=np.where(mean_cov_data['id'] == selected_sample, 18, 12)))
+            size=np.where(mean_cov_data['id'] == selected_sample, marker_selected_size, marker_default_size)))
 
     all_plots = [scatter]
 
