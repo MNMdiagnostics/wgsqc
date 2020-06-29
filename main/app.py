@@ -6,10 +6,10 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 from sqlalchemy.exc import ProgrammingError
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 sys.path.append("..")
-from database.base import Record
-from database.queries import *
+from new_database.new_base import WGSqc
+from new_database.new_queries import *
 from main.get_plots import get_boxplot, get_scatterplot, get_small_scatter, empty_plot
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
@@ -22,47 +22,54 @@ background_color = "#000000"
 font_color = '#7FDBFF'
 components_color = '#080808'
 graph_height = '600px'
+padding = '10px 10px 10px 10px'
+border_radius = 10
+margin = 5
 
 
-navbar = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
-          'padding': '10px 10px 10px 10px',
+navbar = {'marginLeft': margin, 'marginRight': margin, 'marginTop': margin, 'marginBottom': margin,
+          'padding': padding,
           'backgroundColor': components_color,
-          'border': f'2px {border_color} solid',
-          'border-radius': 10}
+          'border-radius': border_radius,
+          'border': f'2px {border_color} solid'
+          }
 
-graph = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
-         'padding': '10px 10px 10px 10px',
+graph = {'marginLeft': margin, 'marginRight': margin, 'marginTop': margin, 'marginBottom': margin,
+         'padding': padding,
          'backgroundColor': components_color,
          'height': graph_height,
-         'border': f'2px {border_color} solid',
-         'border-radius': 10}
+         'border-radius': border_radius,
+         'border': f'2px {border_color} solid'
+         }
 
-body_style = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
+body_style = {'marginLeft': margin, 'marginRight': margin, 'marginTop': margin, 'marginBottom': margin,
               'backgroundColor': background_color,
-              'padding': '10px 10px 10px 10px'}
+              'padding': padding
+              }
 
-sidebar_style = {'marginLeft': 5, 'marginRight': 5, 'marginTop': 5, 'marginBottom': 5,
-                 'padding': '10px 10px 10px 10px',
-                 'border': f'2px {border_color} solid',
+sidebar_style = {'marginLeft': margin, 'marginRight': margin, 'marginTop': margin, 'marginBottom': margin,
+                 'padding': padding,
+                 'border-radius': border_radius,
                  'backgroundColor': components_color,
+                 'border': f'2px {border_color} solid',
                  'height': '1210px',
                  'width': '160px',
                  'overflowY': 'scroll',
-                 'border-radius': 10}
+                 }
 
 
 # --------------------------- DATA LOAD ---------------------------
 try:
-    dropdown_options = get_transcripts_by_gene(Record, type="object")
+    dropdown_options = get_transcripts_by_gene(WGSqc, type="object")
 except ProgrammingError:
-    print("Database do not exists")
+    print("Database does not exist")
 else:
     # --------------------------- DROPDOWNS SETTINGS ---------------------------
     genes_dropdown = dbc.Col(
                         dcc.Dropdown(
                             id='genes-dropdown',
                             options=[{'label': k, 'value': k} for k in dropdown_options.keys()],
-                            value=get_first_row_for_default(Record)
+                            value=get_first_row_for_default(WGSqc)
                         ))
 
     transcripts_dropdown = dbc.Col(dcc.Dropdown(id='transcripts-dropdown'))
@@ -154,7 +161,7 @@ else:
 
     # --------------------------- SIDEBAR SETTINGS ---------------------------
     sidebar_content = dcc.RadioItems(
-        options=[{'label': k, 'value': k} for k in sorted(get_all_file_names(Record, "sample_id"))],
+        options=[{'label': k, 'value': k} for k in sorted(get_all_file_names(WGSqc, "sample_id"))],
         id='radio-buttons')
 
     sidebar = dbc.Jumbotron(
@@ -213,13 +220,13 @@ else:
          Input('boxplot-view-dropdown', 'value')])
     def display_box(selected_gene, selected_transcript, view):
         if view == "Mean coverage boxplots":
-            return get_boxplot(selected_transcript, selected_gene, "mean_cov")
+            return get_boxplot(selected_transcript, selected_gene, "mean_coverage")
         elif view == "X10 coverage boxplots":
-            return get_boxplot(selected_transcript, selected_gene, "cov_10")
+            return get_boxplot(selected_transcript, selected_gene, "percentage_above_10")
         elif view == "X20 coverage boxplots":
-            return get_boxplot(selected_transcript, selected_gene, "cov_20")
+            return get_boxplot(selected_transcript, selected_gene, "percentage_above_20")
         elif view == "X30 coverage boxplots":
-            return get_boxplot(selected_transcript, selected_gene, "cov_30")
+            return get_boxplot(selected_transcript, selected_gene, "percentage_above_30")
         else:
             return empty_plot()
 
@@ -233,7 +240,3 @@ else:
 
     if __name__ == "__main__":
         app.run_server(debug=True)
-
-# TODO: Fix boxplots range to 100.
-# TODO: Maybe number of samples showed on navbar.
-# TODO: Debug to false.

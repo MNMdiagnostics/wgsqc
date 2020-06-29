@@ -1,6 +1,6 @@
 import plotly.graph_objects as go
 from database.queries import get_stats_for_plot
-from database.base import Record
+from new_database.new_base import WGSqc
 import numpy as np
 
 
@@ -17,11 +17,11 @@ def get_boxplot(selected_transcript, selected_gene, statistics):
 
     :param selected_transcript: Transcript selected in dropdown.
     :param selected_gene: Gene selected in dropdown.
-    :param statistics: Statistics to plot. One from following: "mean_cov", "cov_10", "cov_20", "cov_30".
+    :param statistics: Statistics to plot. One from following: "mean_coverage", "percentage_above_10", "percentage_above_20", "percentage_above_30".
     :return: Figure object to update graph.
     """
 
-    stat_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, statistics,
+    stat_dataframe = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, statistics,
                                         sample_ids=True)
 
     boxplot = go.Box(
@@ -56,17 +56,17 @@ def get_scatterplot(selected_transcript, selected_gene, selected_sample):
     :param selected_transcript: Transcript selected in dropdown.
     :param selected_gene: Gene selected in dropdown.
     :param selected_sample: Sample to highlight selected in radiobox.
-    :param statistics: Statistics to plot. One from following: "mean_cov", "cov_10", "cov_20", "cov_30".
+    :param statistics: Statistics to plot. One from following: "mean_coverage", "percentage_above_10", "percentage_above_20", "percentage_above_30".
     :return: Figure object to update graph.
     """
 
-    mean_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov",
+    mean_dataframe = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "mean_coverage",
                                         sample_ids=True).sort_values(by=['id'])
-    x10_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10",
+    x10_dataframe = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "percentage_above_10",
                                         sample_ids=True).sort_values(by=['id'])
-    x20_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_20",
+    x20_dataframe = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "percentage_above_20",
                                        sample_ids=True).sort_values(by=['id'])
-    x30_dataframe = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_30",
+    x30_dataframe = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "percentage_above_30",
                                        sample_ids=True).sort_values(by=['id'])
 
     n_samples = len(mean_dataframe['id'])
@@ -163,8 +163,8 @@ def get_small_scatter(selected_transcript, selected_gene, selected_sample):
     :param selected_sample: Selected sample to highlight.
     :return: Figure object to update graph.
     """
-    mean_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "mean_cov", sample_ids=True)
-    x10_cov_data = get_stats_for_plot(Record, selected_transcript, selected_gene, "cov_10", sample_ids=True)
+    mean_cov_data = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "mean_coverage", sample_ids=True)
+    x10_cov_data = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "percentage_above_10", sample_ids=True)
 
     scatter = go.Scatter(
         x=x10_cov_data['value'],
