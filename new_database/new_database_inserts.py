@@ -34,10 +34,11 @@ def add_to_database_from_files(root_directory):
 
 
 if __name__ == "__main__":
-    # READ FROM FILES
     if len(sys.argv) == 2:
         rootdir = sys.argv[1]
     elif len(sys.argv) == 1:
         print("Root directory set up as /home/username")
         rootdir = "~/"
     add_to_database_from_files(rootdir)
+
+# TODO:

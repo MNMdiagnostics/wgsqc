@@ -12,6 +12,7 @@ from new_database.new_base import WGSqc
 from new_database.new_queries import *
 from main.get_plots import get_boxplot, get_scatterplot, get_small_scatter, empty_plot
 
+
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
 FONT_AWESOME = "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
 external_stylesheets = [dbc.themes.CYBORG, FONT_AWESOME]
@@ -57,6 +58,13 @@ sidebar_style = {'marginLeft': margin, 'marginRight': margin, 'marginTop': margi
                  'overflowY': 'scroll',
                  }
 
+section_style = {'marginLeft': margin, 'marginRight': margin, 'marginTop': margin, 'marginBottom': margin,
+               'padding': padding,
+               'border-radius': border_radius,
+               'backgroundColor': components_color,
+               'border': f'2px {border_color} solid',
+                 }
+
 
 # --------------------------- DATA LOAD ---------------------------
 try:
@@ -99,6 +107,65 @@ else:
         color=background_color,
         style=navbar
     )
+
+    # --------------------------- QC SUMMARY SECTION ---------------------------
+    table_header = [
+        html.Thead(html.Tr([
+            html.Th("Measure"),
+            html.Th("Value"),
+        ]))
+    ]
+
+    values_for_summary = [0 for x in range(11)]
+
+    row1 = html.Tr([html.Td("Total reads number"), html.Td(f"{values_for_summary[0]}")])
+    row2 = html.Tr([html.Td("Total mapped reads number"), html.Td(f"{values_for_summary[1]}")])
+    row3 = html.Tr([html.Td("Percentage of mapped"), html.Td(f"{values_for_summary[2]}")])
+    row4 = html.Tr([html.Td("Duplicates number"), html.Td(f"{values_for_summary[3]}")])
+    row5 = html.Tr([html.Td("Average depth"), html.Td(f"{values_for_summary[4]}")])
+    row6 = html.Tr([html.Td("Percent covered >= 10 reads"), html.Td(f"{values_for_summary[5]}")])
+    row7 = html.Tr([html.Td("Percent covered >= 20 reads"), html.Td(f"{values_for_summary[6]}")])
+    row8 = html.Tr([html.Td("Percent covered >= 30 reads"), html.Td(f"{values_for_summary[7]}")])
+    row9 = html.Tr([html.Td("Total detected variants number"), html.Td(f"{values_for_summary[8]}")])
+    row10 = html.Tr([html.Td("Total heterozygous variants number"), html.Td(f"{values_for_summary[9]}")])
+    row11 = html.Tr([html.Td("Total heterozygous number on X chromosome"), html.Td(f"{values_for_summary[10]}")])
+
+    table_body = [html.Tbody([row1, row2, row3, row4, row5, row6, row7, row8, row9, row10, row11])]
+
+    qc_summary_table = dbc.Table(
+        table_header + table_body,
+        bordered=True,
+        hover=True,
+        responsive=True,
+        striped=True,
+        style={
+            'backgroundColor': components_color,
+            'color': font_color
+        },
+    )
+
+    qc_summary_section = html.Div([
+        dbc.Col(html.H3("QC Summary")),
+        dbc.Col(html.Div(qc_summary_table))
+    ])
+
+    # --------------------------- QC REPORTS SECTION ---------------------------
+    qc_reports_section = html.Div([
+        dbc.Col(html.H3("QC Reports")),
+        dbc.Col(html.Div("a tu będą reporty"))
+    ])
+
+    # --------------------------- QC COVERAGE SECTION ---------------------------
+    qc_coverage_section = html.Div([
+        dbc.Col(html.H3("QC Section")),
+        dbc.Col(html.Div("A tutaj coverage"))
+    ])
+
+    # --------------------------- QC VARIANTS SECTION ---------------------------
+    qc_variants_section = html.Div([
+        dbc.Col(html.H3("QC Variants")),
+        dbc.Col(html.Div("A tu warianty"))
+    ])
 
     # --------------------------- DEFAULT PLOT ---------------------------
     big_scatter = dcc.Graph(
@@ -173,13 +240,23 @@ else:
         dbc.Row([
             dbc.Col(html.Div(sidebar), width="25%"),
             dbc.Col([
-                dbc.Row(
-                    dbc.Col(html.Div(big_scatter))
-                ),
+                # dbc.Row(
+                #     dbc.Col(html.Div(big_scatter))
+                # ),
                 dbc.Row([
-                    dbc.Col(html.Div(box_plot)),
-                    dbc.Col(html.Div(small_scatter))
-                ])
+                    dbc.Col(html.Div(qc_summary_section, style=section_style)),
+                    dbc.Col(html.Div(qc_reports_section, style=section_style))
+                ]),
+                dbc.Row(
+                    dbc.Col(html.Div(qc_coverage_section, style=section_style))
+                ),
+                dbc.Row(
+                    dbc.Col(html.Div(qc_variants_section, style=section_style))
+                ),
+                # dbc.Row([
+                #     dbc.Col(html.Div(box_plot)),
+                #     dbc.Col(html.Div(small_scatter))
+                # ])
             ])
         ])
     ],

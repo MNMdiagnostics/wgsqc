@@ -182,8 +182,10 @@ class WGSqc(Base):
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     gene_id = db.Column(db.String(32))
-    transcript_id = db.Column(db.String(32))
-    sample_id = db.Column(db.String(32))
+    transcript_id = db.Column(db.String(32), index=True)
+    sample_id = db.Column(db.String(32), index=True)
+    # run_id = db.Column(db.String(32))
+    # sample_run = db.Column(db.String(64))
 
     mean_coverage = db.Column(db.Integer)
     percentage_above_10 = db.Column(db.Integer)
