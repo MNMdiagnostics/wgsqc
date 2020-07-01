@@ -10,7 +10,7 @@ from dash.dependencies import Input, Output
 sys.path.append("..")
 from new_database.new_base import WGSqc
 from new_database.new_queries import *
-from main.get_plots import get_boxplot, get_scatterplot, get_small_scatter, empty_plot
+from main.get_plots import get_boxplot, get_scatterplot, get_small_scatter, empty_plot, get_genome_mean_coverage
 
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
@@ -156,9 +156,27 @@ else:
     ])
 
     # --------------------------- QC COVERAGE SECTION ---------------------------
+    genome_mean_coverage = dcc.Graph(
+            figure={
+                'data': [
+                    {'y': []}
+                ],
+                'layout':{
+                    "height": graph_height,
+                    'plot_bgcolor': background_color,
+                    'paper_bgcolor': background_color,
+                    'font': {
+                        'color': font_color
+                    }
+                }
+            },
+        id="genome-mean-coverage-plot",
+        style=graph
+    )
+
     qc_coverage_section = html.Div([
-        dbc.Col(html.H3("QC Section")),
-        dbc.Col(html.Div("A tutaj coverage"))
+        dbc.Col(html.H3("QC Coverage")),
+        dbc.Col(html.Div(genome_mean_coverage))
     ])
 
     # --------------------------- QC VARIANTS SECTION ---------------------------
@@ -314,6 +332,14 @@ else:
          Input('radio-buttons', 'value')])
     def display_small_scatter(selected_gene, selected_transcript, selected_sample):
         return get_small_scatter(selected_transcript, selected_gene, selected_sample)
+
+
+    @app.callback(
+        Output('genome-mean-coverage-plot', 'figure'),
+        [Input('radio-buttons', 'value')])
+    def update_coverage_per_genome(selected_sample):
+        return get_genome_mean_coverage(WGSqc)
+
 
     if __name__ == "__main__":
         app.run_server(debug=True)

@@ -1,7 +1,8 @@
 import plotly.graph_objects as go
-from database.queries import get_stats_for_plot
 from new_database.new_base import WGSqc
 import numpy as np
+import dash_core_components as dcc
+from new_database.new_queries import get_mean_coverage_per_sample, get_stats_for_plot
 
 
 components_color = '#080808'
@@ -214,4 +215,23 @@ def empty_plot():
                        )
     fig = go.Figure(data=all_plots, layout=layout)
 
+    return fig
+
+
+def get_genome_mean_coverage(table_name):
+    mean_coverage_per_sample = get_mean_coverage_per_sample(table_name)
+    genome_mean_coverage = go.Scatter(
+        y=mean_coverage_per_sample['sampleID'],
+        x=mean_coverage_per_sample['meanCoverage'],
+        name="X10 coverage",
+        mode='markers',
+        showlegend=True)
+
+    plot = [genome_mean_coverage]
+    layout = go.Layout(height=fig_height,
+                       paper_bgcolor=components_color,
+                       plot_bgcolor=components_color
+                       )
+
+    fig = go.Figure(data=plot, layout=layout)
     return fig

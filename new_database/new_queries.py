@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from collections import defaultdict
 import time
 import pandas as pd
+import statistics
 
 
 def get_first_row_for_default(table_name: "Class"):
@@ -115,3 +116,36 @@ def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
         return pd.DataFrame(list(zip(statistics_values, sample_id_list)), columns=["value", "id"])
     else:
         return pd.DataFrame(statistics_values, columns=["value"])
+
+
+def get_mean_coverage_per_sample(table_name):
+
+    mean_coverage_per_sample = pd.DataFrame(columns=["sampleID", "meanCoverage"])
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+
+    samples = session.query(table_name.sample_id).distinct() \
+              .all()
+
+    print(samples)
+    print([tuple[0] for tuple in samples])
+
+    # Query returns list of tuples
+    for sample in [tuple[0] for tuple in samples]:
+        matching_samples = session.query(table_name.sample_id) \
+                            .filter(table_name.sample_id == sample) \
+                            .all()
+
+        mean_coverage = statistics.mean([sample.mean_coverage for sample in matching_samples])
+
+        pair = pd.DataFrame({
+            "sampleID": sample,
+            "meanCoverage": mean_coverage
+        })
+
+        mean_coverage_per_sample.append(pair)
+
+    session.close()
+    print(mean_coverage_per_sample)
+    return mean_coverage_per_sample

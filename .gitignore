@@ -2,3 +2,4 @@
 *.pyc
 wgsqc_samples/
 .idea
+wgsqc_test/

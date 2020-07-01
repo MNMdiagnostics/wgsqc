@@ -7,7 +7,7 @@ import time
 import statistics
 
 
-def add_to_database_from_files(root_directory):
+def add_to_database_from_files(root_directory, engine):
     """
     Adds records to database from nested directory of a tab separated files.
 
@@ -34,11 +34,23 @@ def add_to_database_from_files(root_directory):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 2:
+    if len(sys.argv) == 3:
         rootdir = sys.argv[1]
+        port = sys.argv[2]
+        engine, connection = get_engine_and_connection(port=port)
+
+    elif len(sys.argv) == 2:
+        rootdir = sys.argv[1]
+        port = os.environ['POSTGRES_PORT']
+        engine, connection = get_engine_and_connection(port=port)
+
     elif len(sys.argv) == 1:
         print("Root directory set up as /home/username")
         rootdir = "~/"
-    add_to_database_from_files(rootdir)
+        port = os.environ['POSTGRES_PORT']
+        engine, connection = get_engine_and_connection(port=port)
+
+    create_tables(engine)
+    add_to_database_from_files(rootdir, engine)
 
 # TODO:

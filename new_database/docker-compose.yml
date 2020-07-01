@@ -1,0 +1,17 @@
+version: '3'
+services:
+  db_big:
+    image: "postgres:alpine"
+    env_file:
+      - new_database.env
+    ports:
+      - "5430:5432"
+  db_small:
+    image: "postgres:alpine"
+    env_file:
+      - new_database.env
+    ports:
+      - "5431:5432"
+# my_port:container_port
+# db_big - 5430:5432
+# db_small 5431:5432
