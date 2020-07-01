@@ -3,27 +3,22 @@ import sqlalchemy as db
 import os
 
 
-def get_engine_and_connection():
-    # It allows to have multiple docker database containers and input different host port for container
+user = os.environ['POSTGRES_USER']
+password = os.environ['POSTGRES_PASSWORD']
+host = os.environ['POSTGRES_HOST']
+database = os.environ['POSTGRES_DB']
+port = os.environ['POSTGRES_PORT']
 
-    user = os.environ['POSTGRES_USER']
-    password = os.environ['POSTGRES_PASSWORD']
-    host = os.environ['POSTGRES_HOST']
-    database = os.environ['POSTGRES_DB']
-    port = input("Enter port for database connection: ")
-
-    while True:
-        try:
-            engine = db.create_engine(f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}')
-            connection = engine.connect()
-        except Exception as e:
-            print(e)
-        else:
-            break
-    return engine, connection
+while True:
+    try:
+        engine = db.create_engine(f'postgresql+psycopg2://{user}:{password}@{host}:{port}/{database}')
+        connection = engine.connect()
+    except Exception as e:
+        print(e)
+    else:
+        break
 
 
-engine, connection = get_engine_and_connection()
 Base = declarative_base()
 
 
@@ -192,10 +187,10 @@ class WGSqc(Base):
     # run_id = db.Column(db.String(32))
     # sample_run = db.Column(db.String(64))
 
-    mean_coverage = db.Column(db.Integer)
-    percentage_above_10 = db.Column(db.Integer)
-    percentage_above_20 = db.Column(db.Integer)
-    percentage_above_30 = db.Column(db.Integer)
+    mean_coverage = db.Column(db.Float)
+    percentage_above_10 = db.Column(db.Float)
+    percentage_above_20 = db.Column(db.Float)
+    percentage_above_30 = db.Column(db.Float)
 
 
 Base.metadata.create_all(engine)

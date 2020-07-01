@@ -5,12 +5,14 @@ import dash
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
+import plotly.graph_objects as go
 from sqlalchemy.exc import ProgrammingError
 from dash.dependencies import Input, Output
 sys.path.append("..")
 from new_database.new_base import WGSqc
 from new_database.new_queries import *
-from main.get_plots import get_boxplot, get_scatterplot, get_small_scatter, empty_plot, get_genome_mean_coverage
+from main.get_plots import get_boxplot, get_scatterplot, get_small_scatter, empty_plot
+
 
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
@@ -156,23 +158,17 @@ else:
     ])
 
     # --------------------------- QC COVERAGE SECTION ---------------------------
-    genome_mean_coverage = dcc.Graph(
-            figure={
-                'data': [
-                    {'y': []}
-                ],
-                'layout':{
-                    "height": graph_height,
-                    'plot_bgcolor': background_color,
-                    'paper_bgcolor': background_color,
-                    'font': {
-                        'color': font_color
-                    }
-                }
-            },
-        id="genome-mean-coverage-plot",
-        style=graph
-    )
+    sample_ids, coverages = get_mean_coverage_per_sample(WGSqc)
+    print(sample_ids)
+    print(coverages)
+    print(list(range(len(sample_ids))))
+    genome_mean_coverage = go.Scatter(
+        y=coverages,
+        x=list(range(len(sample_ids))),
+        name="MEAN COVERAGE",
+        mode='markers',
+        showlegend=True)
+
 
     qc_coverage_section = html.Div([
         dbc.Col(html.H3("QC Coverage")),
@@ -334,11 +330,11 @@ else:
         return get_small_scatter(selected_transcript, selected_gene, selected_sample)
 
 
-    @app.callback(
-        Output('genome-mean-coverage-plot', 'figure'),
-        [Input('radio-buttons', 'value')])
-    def update_coverage_per_genome(selected_sample):
-        return get_genome_mean_coverage(WGSqc)
+    # @app.callback(
+    #     Output('genome-coverage-plot', 'figure'),
+    #     [Input('radio-buttons', 'value')])
+    # def update_coverage_per_genome(selected_sample):
+    #     return get_genome_mean_coverage(WGSqc, selected_sample)
 
 
     if __name__ == "__main__":

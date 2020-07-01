@@ -120,7 +120,7 @@ def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
 
 def get_mean_coverage_per_sample(table_name):
 
-    mean_coverage_per_sample = pd.DataFrame(columns=["sampleID", "meanCoverage"])
+    sample_ids, coverages = [], []
 
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -128,24 +128,17 @@ def get_mean_coverage_per_sample(table_name):
     samples = session.query(table_name.sample_id).distinct() \
               .all()
 
-    print(samples)
-    print([tuple[0] for tuple in samples])
-
     # Query returns list of tuples
-    for sample in [tuple[0] for tuple in samples]:
-        matching_samples = session.query(table_name.sample_id) \
+    samples = [tuple[0] for tuple in samples]
+
+    for sample in samples:
+        matching_samples = session.query(table_name) \
                             .filter(table_name.sample_id == sample) \
                             .all()
-
-        mean_coverage = statistics.mean([sample.mean_coverage for sample in matching_samples])
-
-        pair = pd.DataFrame({
-            "sampleID": sample,
-            "meanCoverage": mean_coverage
-        })
-
-        mean_coverage_per_sample.append(pair)
+        matching_samples = [sample.mean_coverage for sample in matching_samples]
+        mean_coverage = round(statistics.mean(matching_samples), 2)
+        sample_ids.append(sample)
+        coverages.append(mean_coverage)
 
     session.close()
-    print(mean_coverage_per_sample)
-    return mean_coverage_per_sample
+    return sample_ids, coverages

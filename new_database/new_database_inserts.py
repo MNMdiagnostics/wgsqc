@@ -7,7 +7,7 @@ import statistics
 from new_database.new_base import engine
 
 
-def add_to_database_from_files(root_directory, engine):
+def add_to_database_from_files(root_directory):
     """
     Adds records to database from nested directory of a tab separated files.
 
@@ -44,4 +44,4 @@ if __name__ == "__main__":
         print("Root directory set up as /home/username")
         rootdir = "~/"
 
-    add_to_database_from_files(rootdir, engine)
+    add_to_database_from_files(rootdir)

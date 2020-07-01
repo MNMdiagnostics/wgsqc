@@ -179,7 +179,8 @@ def get_small_scatter(selected_transcript, selected_gene, selected_sample):
         name="Mean coverage - coverage X10",
         marker=dict(
             color=np.where(mean_cov_data['id'] == selected_sample, 'red', font_color),
-            size=np.where(mean_cov_data['id'] == selected_sample, marker_selected_size, marker_default_size)))
+            size=np.where(mean_cov_data['id'] == selected_sample, marker_selected_size, marker_default_size))
+    )
 
     all_plots = [scatter]
 
@@ -215,23 +216,4 @@ def empty_plot():
                        )
     fig = go.Figure(data=all_plots, layout=layout)
 
-    return fig
-
-
-def get_genome_mean_coverage(table_name):
-    mean_coverage_per_sample = get_mean_coverage_per_sample(table_name)
-    genome_mean_coverage = go.Scatter(
-        y=mean_coverage_per_sample['sampleID'],
-        x=mean_coverage_per_sample['meanCoverage'],
-        name="X10 coverage",
-        mode='markers',
-        showlegend=True)
-
-    plot = [genome_mean_coverage]
-    layout = go.Layout(height=fig_height,
-                       paper_bgcolor=components_color,
-                       plot_bgcolor=components_color
-                       )
-
-    fig = go.Figure(data=plot, layout=layout)
     return fig
