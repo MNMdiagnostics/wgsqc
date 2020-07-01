@@ -1,10 +1,10 @@
 import sys
 sys.path.append("..")
-from new_database.new_base import *
 import pandas as pd
 import os
 import time
 import statistics
+from new_database.new_base import engine
 
 
 def add_to_database_from_files(root_directory, engine):
@@ -36,21 +36,12 @@ def add_to_database_from_files(root_directory, engine):
 if __name__ == "__main__":
     if len(sys.argv) == 3:
         rootdir = sys.argv[1]
-        port = sys.argv[2]
-        engine, connection = get_engine_and_connection(port=port)
 
     elif len(sys.argv) == 2:
         rootdir = sys.argv[1]
-        port = os.environ['POSTGRES_PORT']
-        engine, connection = get_engine_and_connection(port=port)
 
     elif len(sys.argv) == 1:
         print("Root directory set up as /home/username")
         rootdir = "~/"
-        port = os.environ['POSTGRES_PORT']
-        engine, connection = get_engine_and_connection(port=port)
 
-    create_tables(engine)
     add_to_database_from_files(rootdir, engine)
-
-# TODO:
