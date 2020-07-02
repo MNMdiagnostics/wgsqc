@@ -20,6 +20,7 @@ FONT_AWESOME = "https://use.fontawesome.com/releases/v5.7.2/css/all.css"
 external_stylesheets = [dbc.themes.CYBORG, FONT_AWESOME]
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+fig_height = 700
 border_color = "#1a1a1a"
 background_color = "#000000"
 font_color = '#7FDBFF'
@@ -165,14 +166,42 @@ else:
     genome_mean_coverage = go.Scatter(
         y=coverages,
         x=list(range(len(sample_ids))),
-        name="MEAN COVERAGE",
+        name="Mean coverage across whole genome",
         mode='markers',
+        marker=dict(
+            color=font_color,
+            size=18
+        ),
         showlegend=True)
 
+    plot = [genome_mean_coverage]
+
+    layout = go.Layout(title="Mean coverage of whole genome across samples",
+                       height=fig_height,
+                       hoverlabel=dict(
+                           bgcolor='black',
+                           font_size=16,
+                           bordercolor=font_color,
+                       ),
+                       paper_bgcolor=components_color,
+                       plot_bgcolor=components_color,
+                       xaxis={'tickvals': [x for x in range(len(sample_ids))],
+                              'ticktext': sample_ids
+                              },
+                       yaxis=dict(range=[0, 100.5]),
+                       font={
+                           "size": 18,
+                           "color": font_color
+                       },
+                       showlegend=False)
+
+    fig = go.Figure(data=plot, layout=layout)
+
+    pl = dcc.Graph(figure=fig)
 
     qc_coverage_section = html.Div([
         dbc.Col(html.H3("QC Coverage")),
-        dbc.Col(html.Div(genome_mean_coverage))
+        dbc.Col(html.Div(pl))
     ])
 
     # --------------------------- QC VARIANTS SECTION ---------------------------
