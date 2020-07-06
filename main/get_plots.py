@@ -1,8 +1,7 @@
 import plotly.graph_objects as go
 from new_database.new_base import WGSqc
 import numpy as np
-import dash_core_components as dcc
-from new_database.new_queries import get_mean_coverage_per_sample, get_stats_for_plot
+from new_database.new_queries import get_stats_for_plot
 
 
 components_color = '#080808'
@@ -12,7 +11,7 @@ marker_default_size = 10
 marker_selected_size = 18
 
 
-def get_boxplot(selected_transcript, selected_gene, statistics):
+def get_small_boxplot(selected_transcript, selected_gene, statistics):
     """
     Graph object updating handler for coverage boxplot.
 
@@ -47,111 +46,6 @@ def get_boxplot(selected_transcript, selected_gene, statistics):
                        })
     fig = go.Figure(data=all_plots, layout=layout)
 
-    return fig
-
-
-def get_scatterplot(selected_transcript, selected_gene, selected_sample):
-    """
-    Graph object updating handler for coverage scatterlot.
-
-    :param selected_transcript: Transcript selected in dropdown.
-    :param selected_gene: Gene selected in dropdown.
-    :param selected_sample: Sample to highlight selected in radiobox.
-    :param statistics: Statistics to plot. One from following: "mean_coverage", "percentage_above_10", "percentage_above_20", "percentage_above_30".
-    :return: Figure object to update graph.
-    """
-
-    mean_dataframe = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "mean_coverage",
-                                        sample_ids=True).sort_values(by=['id'])
-    x10_dataframe = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "percentage_above_10",
-                                        sample_ids=True).sort_values(by=['id'])
-    x20_dataframe = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "percentage_above_20",
-                                       sample_ids=True).sort_values(by=['id'])
-    x30_dataframe = get_stats_for_plot(WGSqc, selected_transcript, selected_gene, "percentage_above_30",
-                                       sample_ids=True).sort_values(by=['id'])
-
-    n_samples = len(mean_dataframe['id'])
-
-    scatter_mean = go.Scatter(
-        y=mean_dataframe['value'],
-        x=[x for x in range(len(mean_dataframe['value']))],
-        name="mean coverage",
-        mode='markers',
-        hovertemplate=
-        '<i>Sample: </i>%{text}' +
-        '<br><i>Value: </i>%{y}<br>',
-        text=mean_dataframe['id'],
-        marker=dict(
-            color=np.where(mean_dataframe['id'] == selected_sample, 'red', "#FCBF1E"),
-            size=np.where(mean_dataframe['id'] == selected_sample, marker_selected_size, marker_default_size)
-        ),
-        showlegend=True)
-
-    scatter_x10 = go.Scatter(
-        y=x10_dataframe['value'],
-        x=[x for x in range(len(x10_dataframe['value']))],
-        name="X10 coverage",
-        mode='markers',
-        hovertemplate=
-        '<i>Sample: </i>%{text}' +
-        '<br><i>Value: </i>%{y}<br>',
-        text=x10_dataframe['id'],
-        marker=dict(
-            color=np.where(x10_dataframe['id'] == selected_sample, 'red', font_color),
-            size=np.where(x10_dataframe['id'] == selected_sample, marker_selected_size, marker_default_size)
-        ),
-        showlegend=True)
-
-    scatter_x20 = go.Scatter(
-        y=x20_dataframe['value'],
-        x=[x for x in range(len(x20_dataframe['value']))],
-        name="X20 coverage",
-        mode='markers',
-        hovertemplate=
-        '<i>Sample: </i>%{text}' +
-        '<br><i>Value: </i>%{y}<br>',
-        text=x20_dataframe['id'],
-        marker=dict(
-            color=np.where(x20_dataframe['id'] == selected_sample, 'red', "#035AA6"),
-            size=np.where(x20_dataframe['id'] == selected_sample, marker_selected_size, marker_default_size)
-        ),
-        showlegend=True)
-
-    scatter_x30 = go.Scatter(
-        y=x30_dataframe['value'],
-        x=[x for x in range(len(x30_dataframe['value']))],
-        name="X30 coverage",
-        mode='markers',
-        hovertemplate=
-        '<i>Sample: </i>%{text}' +
-        '<br><i>Value: </i>%{y}<br>',
-        text=x30_dataframe['id'],
-        marker=dict(
-            color=np.where(x30_dataframe['id'] == selected_sample, 'red', "#120136"),
-            size=np.where(x30_dataframe['id'] == selected_sample, marker_selected_size, marker_default_size)
-        ),
-        showlegend=True)
-
-    all_plots = [scatter_mean, scatter_x10, scatter_x20, scatter_x30]
-
-    layout = go.Layout(title=f"Coverages across samples, number of samples: {n_samples}",
-                       height=fig_height,
-                       hoverlabel=dict(
-                           bgcolor='black',
-                           font_size=16,
-                           bordercolor=font_color,
-                       ),
-                       paper_bgcolor=components_color,
-                       plot_bgcolor=components_color,
-                       xaxis={'tickvals': [x for x in range(len(mean_dataframe['id']))],
-                              'ticktext': mean_dataframe['id']
-                              },
-                       yaxis=dict(range=[0, 100.5]),
-                       font={
-                           "size": 18,
-                           "color": font_color
-                       })
-    fig = go.Figure(data=all_plots, layout=layout)
     return fig
 
 

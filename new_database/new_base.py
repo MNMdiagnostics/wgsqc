@@ -30,6 +30,7 @@ class SampleRun(Base):
     run_id = db.Column(db.String(100))
     variant_stats = db.orm.relationship('VariantStats', back_populates='sample_run', uselist=False)
     read_qc = db.orm.relationship('ReadQc', back_populates='sample_run', uselist=False)
+
     wgs_stats = db.orm.relationship('WGSstats', back_populates='sample_run', uselist=False)
 
     pipeline_type = db.Column(db.String(100))
@@ -48,6 +49,7 @@ class VariantStats(Base):
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     sample_run_id = db.Column(db.Integer, db.ForeignKey('sample_run.id'))
+
     sample_run = db.orm.relationship('SampleRun', back_populates='variant_stats')
 
     sample_id = db.Column(db.String(100))
@@ -162,28 +164,22 @@ class WGSstats(Base):
     percentage_above_20 = db.Column(db.Float())
     percentage_above_30 = db.Column(db.Float())
 
+    wgs_qc = db.orm.relationship("StatsForTranscripts")
+
     def __repr__(self):
         return f'<WGSstats {self.id} {self.sample_id} {self.run_id}>'
 
 
-class WGSqc(Base):
-    """
-    gene_id: Gene symbol.
-    transcript_id: Transcript symbol encoded by gene in gene_id.
-    sample_id: Filename (eg. MNM00001).
-
-    mean_cov: Mean coverage value for given transcript of a gene.
-    percentage_above_10: Percent of a transcript covered at least by 10 reads.
-    percentage_above_20: Percent of a transcript covered at least by 20 reads.
-    percentage_above_30: Percent of a transcript covered at least by 30 reads.
-    """
-
-    __tablename__ = 'wgs_qc'
+class StatsForTranscripts(Base):
+    __tablename__ = 'stats_for_transcripts'
 
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    gene_id = db.Column(db.String(32))
-    transcript_id = db.Column(db.String(32), index=True)
-    sample_id = db.Column(db.String(32), index=True)
+    gene_id = db.Column(db.String(100))
+    transcript_id = db.Column(db.String(100), index=True)
+    sample_id = db.Column(db.String(100), index=True)
+
+    wgsstats_id = db.Column(db.Integer, db.ForeignKey("wgs_stats.id"))
+
     # run_id = db.Column(db.String(32))
     # sample_run = db.Column(db.String(64))
 

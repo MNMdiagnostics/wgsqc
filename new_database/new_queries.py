@@ -118,9 +118,13 @@ def get_stats_for_plot(table_name, transcript, gene, stat, sample_ids=False):
         return pd.DataFrame(statistics_values, columns=["value"])
 
 
-def get_mean_coverage_per_sample(table_name):
+def get_list_of_available_samples(table_name):
+    """
+    Returns list of all distinct sample names available in database
 
-    sample_ids, coverages = [], []
+    :param table_name: Table to query.
+    :return: List of strings with sample names.
+    """
 
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -128,17 +132,39 @@ def get_mean_coverage_per_sample(table_name):
     samples = session.query(table_name.sample_id).distinct() \
               .all()
 
+    session.close()
+
     # Query returns list of tuples
-    samples = [tuple[0] for tuple in samples]
+    return [tuple[0] for tuple in samples]
+
+
+def get_coverages_and_ids(table_name, samples):
+
+    sample_ids, mean_cov, x10_cov, x20_cov, x30_cov = [], [], [], [], []
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
 
     for sample in samples:
         matching_samples = session.query(table_name) \
-                            .filter(table_name.sample_id == sample) \
-                            .all()
-        matching_samples = [sample.mean_coverage for sample in matching_samples]
-        mean_coverage = round(statistics.mean(matching_samples), 2)
+                           .filter(table_name.sample_id == sample) \
+                           .all()
+
         sample_ids.append(sample)
-        coverages.append(mean_coverage)
+        mean_cov.append(round(statistics.mean([sample.mean_coverage for sample in matching_samples]), 2))
+        x10_cov.append(round(statistics.mean([sample.percentage_above_10 for sample in matching_samples]), 2))
+        x20_cov.append(round(statistics.mean([sample.percentage_above_20 for sample in matching_samples]), 2))
+        x30_cov.append(round(statistics.mean([sample.percentage_above_30 for sample in matching_samples]), 2))
 
     session.close()
-    return sample_ids, coverages
+
+    return sample_ids, mean_cov, x10_cov, x20_cov, x30_cov
+
+
+def get_stats_for_table():
+    pass
+
+
+
+
+# TODO: Ładowanie średniego pokrycia dla całego genomu z bazy zamiast obliczanie go na nowo (new_queries.py get_coverages_and_ids())

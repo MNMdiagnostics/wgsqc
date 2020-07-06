@@ -11,8 +11,7 @@ from dash.dependencies import Input, Output
 sys.path.append("..")
 from new_database.new_base import WGSqc
 from new_database.new_queries import *
-from main.get_plots import get_boxplot, get_scatterplot, get_small_scatter, empty_plot
-
+from main.get_plots import get_small_boxplot, get_small_scatter, empty_plot
 
 
 # --------------------------- STYLESHEETS AND APP SETUP ---------------------------
@@ -99,16 +98,66 @@ else:
     )
 
     # --------------------------- NAVBAR SETTINGS ---------------------------
+    sample_dropdown = dbc.Col(
+        dcc.Dropdown(
+            id='sample-dropdown',
+            options=[{"label": k, "value": k} for k in sorted(get_all_file_names(WGSqc, "sample_id"))],
+            value=get_all_file_names(WGSqc, "sample_id")[0]
+        )
+    )
+
     navbar = dbc.Navbar(
         [
-            html.H3("WGSqc"),
-            boxplot_dropdown,
-            genes_dropdown,
-            transcripts_dropdown,
+            dbc.Col(html.H3("WGSqc"), width=1),
+            dbc.Col(sample_dropdown, width=5),
+            dbc.Col(dbc.Button("Save to .csv", color="primary"), width=2)
+
         ],
         dark=True,
         color=background_color,
-        style=navbar
+        style=navbar,
+        sticky="top"
+    )
+
+    # --------------------------- DEFAULT PLOTS ---------------------------
+    small_box_plot = dcc.Graph(
+        figure={
+            'data': [
+                {'x': [],
+                 'y': [],
+                 }
+            ],
+            'layout': {
+                "height": graph_height,
+                'plot_bgcolor': background_color,
+                'paper_bgcolor': background_color,
+                'font': {
+                    'color': font_color
+                }
+            }
+        },
+        id="box-plot",
+        style=graph
+    )
+
+    small_scatter = dcc.Graph(
+        figure={
+            'data': [
+                {'x': [],
+                 'y': [],
+                 }
+            ],
+            'layout': {
+                "height": graph_height,
+                'plot_bgcolor': background_color,
+                'paper_bgcolor': background_color,
+                'font': {
+                    'color': font_color
+                }
+            }
+        },
+        id="small-scatter-plot",
+        style=graph
     )
 
     # --------------------------- QC SUMMARY SECTION ---------------------------
@@ -159,14 +208,15 @@ else:
     ])
 
     # --------------------------- QC COVERAGE SECTION ---------------------------
-    sample_ids, coverages = get_mean_coverage_per_sample(WGSqc)
-    print(sample_ids)
-    print(coverages)
-    print(list(range(len(sample_ids))))
+    samples = get_list_of_available_samples(WGSqc)
+
+    sample_ids, mean_coverage_values, x10_coverage_values, \
+    x20_coverage_values, x30_coverage_values = get_coverages_and_ids(WGSqc, samples)
+
     genome_mean_coverage = go.Scatter(
-        y=coverages,
+        y=mean_coverage_values,
         x=list(range(len(sample_ids))),
-        name="Mean coverage across whole genome",
+        name="Mean coverage percentage across whole genome",
         mode='markers',
         marker=dict(
             color=font_color,
@@ -174,7 +224,44 @@ else:
         ),
         showlegend=True)
 
-    plot = [genome_mean_coverage]
+    genome_x10_coverage = go.Scatter(
+        y=x10_coverage_values,
+        x=list(range(len(sample_ids))),
+        name="X10 coverage percentage across whole genome",
+        mode='markers',
+        marker=dict(
+            color="#FCBF1E",
+            size=18
+        ),
+        showlegend=True)
+
+    genome_x20_coverage = go.Scatter(
+        y=x20_coverage_values,
+        x=list(range(len(sample_ids))),
+        name="X20 coverage percentage across whole genome",
+        mode='markers',
+        marker=dict(
+            color="#035AA6",
+            size=18
+        ),
+        showlegend=True)
+
+    genome_x30_coverage = go.Scatter(
+        y=x30_coverage_values,
+        x=list(range(len(sample_ids))),
+        name="X30 coverage percentage across whole genome",
+        mode='markers',
+        marker=dict(
+            color="#6b26a3",
+            size=18
+        ),
+        showlegend=True)
+
+    subplots = [genome_mean_coverage,
+                genome_x10_coverage,
+                genome_x20_coverage,
+                genome_x30_coverage
+                ]
 
     layout = go.Layout(title="Mean coverage of whole genome across samples",
                        height=fig_height,
@@ -192,100 +279,37 @@ else:
                        font={
                            "size": 18,
                            "color": font_color
-                       },
-                       showlegend=False)
+                       },)
 
-    fig = go.Figure(data=plot, layout=layout)
+    fig = go.Figure(data=subplots, layout=layout)
 
-    pl = dcc.Graph(figure=fig)
+    genome_mean_coverage_plot = dcc.Graph(figure=fig)
 
     qc_coverage_section = html.Div([
-        dbc.Col(html.H3("QC Coverage")),
-        dbc.Col(html.Div(pl))
+        dbc.Row(dbc.Col(html.H3("QC Coverage"))),
+        dbc.Row(dbc.Col(html.Div(genome_mean_coverage_plot))),
+        dbc.Row([
+            dbc.Col(boxplot_dropdown),
+            dbc.Col(genes_dropdown),
+            dbc.Col(transcripts_dropdown)
+        ]),
+        dbc.Row([
+            dbc.Col(html.Div(small_scatter)),
+            dbc.Col(html.Div(small_box_plot))
+        ])
     ])
 
     # --------------------------- QC VARIANTS SECTION ---------------------------
     qc_variants_section = html.Div([
         dbc.Col(html.H3("QC Variants")),
-        dbc.Col(html.Div("A tu warianty"))
+        dbc.Col(html.Div("A tu beda warianty"))
     ])
 
-    # --------------------------- DEFAULT PLOT ---------------------------
-    big_scatter = dcc.Graph(
-            figure={
-                'data': [
-                    {'y': []}
-                ],
-                'layout':{
-                    "height": graph_height,
-                    'plot_bgcolor': background_color,
-                    'paper_bgcolor': background_color,
-                    'font': {
-                        'color': font_color
-                    }
-                }
-            },
-        id="big-scatter-plot",
-        style=graph
-    )
-
-    box_plot = dcc.Graph(
-        figure={
-            'data': [
-                {'x': [],
-                 'y': [],
-                 }
-            ],
-            'layout': {
-                "height": graph_height,
-                'plot_bgcolor': background_color,
-                'paper_bgcolor': background_color,
-                'font': {
-                    'color': font_color
-                }
-            }
-        },
-        id="box-plot",
-        style=graph
-    )
-
-    small_scatter = dcc.Graph(
-        figure={
-            'data': [
-                {'x': [],
-                 'y': [],
-                 }
-            ],
-            'layout': {
-                "height": graph_height,
-                'plot_bgcolor': background_color,
-                'paper_bgcolor': background_color,
-                'font': {
-                    'color': font_color
-                }
-            }
-        },
-        id="small-scatter-plot",
-        style=graph
-    )
-
     # --------------------------- SIDEBAR SETTINGS ---------------------------
-    sidebar_content = dcc.RadioItems(
-        options=[{'label': k, 'value': k} for k in sorted(get_all_file_names(WGSqc, "sample_id"))],
-        id='radio-buttons')
-
-    sidebar = dbc.Jumbotron(
-        sidebar_content,
-        fluid=False,
-        style=sidebar_style)
-
     body = html.Div([
         dbc.Row([
-            dbc.Col(html.Div(sidebar), width="25%"),
+            # dbc.Col(html.Div(sidebar), width="25%"),
             dbc.Col([
-                # dbc.Row(
-                #     dbc.Col(html.Div(big_scatter))
-                # ),
                 dbc.Row([
                     dbc.Col(html.Div(qc_summary_section, style=section_style)),
                     dbc.Col(html.Div(qc_reports_section, style=section_style))
@@ -296,10 +320,6 @@ else:
                 dbc.Row(
                     dbc.Col(html.Div(qc_variants_section, style=section_style))
                 ),
-                # dbc.Row([
-                #     dbc.Col(html.Div(box_plot)),
-                #     dbc.Col(html.Div(small_scatter))
-                # ])
             ])
         ])
     ],
@@ -326,27 +346,19 @@ else:
             return []
 
     @app.callback(
-        Output('big-scatter-plot', 'figure'),
-        [Input('genes-dropdown', 'value'),
-         Input('transcripts-dropdown', 'value'),
-         Input('radio-buttons', 'value')])
-    def display_big_scatter(selected_gene, selected_transcript, selected_sample):
-        return get_scatterplot(selected_transcript, selected_gene, selected_sample)
-
-    @app.callback(
         Output('box-plot', 'figure'),
         [Input('genes-dropdown', 'value'),
          Input('transcripts-dropdown', 'value'),
          Input('boxplot-view-dropdown', 'value')])
-    def display_box(selected_gene, selected_transcript, view):
+    def display_small_box(selected_gene, selected_transcript, view):
         if view == "Mean coverage boxplots":
-            return get_boxplot(selected_transcript, selected_gene, "mean_coverage")
+            return get_small_boxplot(selected_transcript, selected_gene, "mean_coverage")
         elif view == "X10 coverage boxplots":
-            return get_boxplot(selected_transcript, selected_gene, "percentage_above_10")
+            return get_small_boxplot(selected_transcript, selected_gene, "percentage_above_10")
         elif view == "X20 coverage boxplots":
-            return get_boxplot(selected_transcript, selected_gene, "percentage_above_20")
+            return get_small_boxplot(selected_transcript, selected_gene, "percentage_above_20")
         elif view == "X30 coverage boxplots":
-            return get_boxplot(selected_transcript, selected_gene, "percentage_above_30")
+            return get_small_boxplot(selected_transcript, selected_gene, "percentage_above_30")
         else:
             return empty_plot()
 
@@ -354,16 +366,9 @@ else:
         Output('small-scatter-plot', 'figure'),
         [Input('genes-dropdown', 'value'),
          Input('transcripts-dropdown', 'value'),
-         Input('radio-buttons', 'value')])
+         Input('sample-dropdown', 'value')])
     def display_small_scatter(selected_gene, selected_transcript, selected_sample):
         return get_small_scatter(selected_transcript, selected_gene, selected_sample)
-
-
-    # @app.callback(
-    #     Output('genome-coverage-plot', 'figure'),
-    #     [Input('radio-buttons', 'value')])
-    # def update_coverage_per_genome(selected_sample):
-    #     return get_genome_mean_coverage(WGSqc, selected_sample)
 
 
     if __name__ == "__main__":
