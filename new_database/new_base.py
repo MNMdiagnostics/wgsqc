@@ -164,7 +164,7 @@ class WGSstats(Base):
     percentage_above_20 = db.Column(db.Float())
     percentage_above_30 = db.Column(db.Float())
 
-    wgs_qc = db.orm.relationship("StatsForTranscripts")
+    stats_for_transcripts = db.orm.relationship("StatsForTranscripts")
 
     def __repr__(self):
         return f'<WGSstats {self.id} {self.sample_id} {self.run_id}>'
